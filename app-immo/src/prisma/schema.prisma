@@ -1,25 +1,79 @@
 // prisma/schema.prisma
 datasource db {
-  provider = "sqlite" // PostgreSQL par défaut
+  provider = "sqlite"
   url      = "file:./dev.db"
 }
+
 
 generator client {
   provider = "prisma-client-js"
   // ⚠ pas de clé "output" pour rester compatible averc Next
 }
 
-
-model Annonce {
-  id          Int      @id @default(autoincrement())
-  titre       String
-  description String
-  prix        Float
-  statut      Statut   @default(PUBLIE)
-  createdAt   DateTime @default(now())
+model User {
+  id   String     @id @default(cuid())   
+  name    String?
+  email   String    @unique
+  session Session[]  
+  Role    Role  @default(USER)
+  createdAt DateTime @default(now())
 }
 
-enum Statut {
+model Annonce {
+  id          Int             @id @default(autoincrement())
+  titre       String
+  type        TypeBien  
+  description String
+  prix        Float
+  statutpub   StatutPublication   @default(PUBLIE)
+  statubien   StatutBien
+  datedispo   DateTime            @default(now())
+  photo       Photo[]
+  question    Question[]
+}
+
+model Session {
+  sessioncookie String @id @default(cuid()) @unique
+  userid String
+  user User[]
+  expirationdate DateTime
+}
+
+model Photo {
+  id Int @id @default(autoincrement())
+  data Bytes
+  mimetype String
+  photoname String
+  Annonce Annonce[]
+  createdAt DateTime @default(now())
+}
+
+model Question {
+  id Int @id @default(autoincrement())
+  content String
+  answer String?
+  Annonce Annonce[]
+  createdAt DateTime @default(now())
+}
+
+enum TypeBien {
+  VENDU
+  LOCATION
+}
+
+enum StatutBien {
+  DISPONIBLE
+  LOUE
+  VENDU
+}
+
+enum StatutPublication {
   BROUILLON
   PUBLIE
+}
+
+enum Role {
+  ADMIN
+  USER
+  AGENT
 }

@@ -1,0 +1,25 @@
+// prisma/schema.prisma
+datasource db {
+  provider = "sqlite" // PostgreSQL par défaut
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  // ⚠ pas de clé "output" pour rester compatible averc Next
+}
+
+
+model Annonce {
+  id          Int      @id @default(autoincrement())
+  titre       String
+  description String
+  prix        Float
+  statut      Statut   @default(PUBLIE)
+  createdAt   DateTime @default(now())
+}
+
+enum Statut {
+  BROUILLON
+  PUBLIE
+}

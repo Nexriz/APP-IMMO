@@ -1,7 +1,7 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
  
-export const { handlers, signIn, signOut, auth} = NextAuth( {
+export const { handlers, signIn, signOut, auth } = NextAuth( {
     providers : [
         Credentials({
             credentials : {
@@ -17,7 +17,7 @@ export const { handlers, signIn, signOut, auth} = NextAuth( {
                 },
             },
             async authorize(credentials) {
-                    throw new Error
+                    let user = null
             }
         })
     ],

@@ -15,7 +15,7 @@ export default function LoginPage() {
   const route = useRouter(); // Utilisé pour la redirection vers d'autres pages
 
   const handleLogin = async (e: React.FormEvent) => {
-    
+
     e.preventDefault(); //Évite de recharger la page
     setError('');
     try {
@@ -37,7 +37,6 @@ export default function LoginPage() {
       setError("La connexion à échoué"); //Erreur de réseau
     }
 }
-
 
   return (
     <div className="bg-gray-300 h-screen flex flex-col">

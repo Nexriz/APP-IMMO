@@ -30,7 +30,7 @@ export default function SignUpPage() {
         body : JSON.stringify({
           name : name,
           email : email,
-           password : password})
+          password : password})
       });
 
       if(!res.ok){
@@ -40,7 +40,7 @@ export default function SignUpPage() {
       } else {
         route.push("/login"); //Redirige vers la page de connexion
       }
-
+      
     } catch (err) {
       setError("Impossible de se connecter"); //Erreur de réseau
     };

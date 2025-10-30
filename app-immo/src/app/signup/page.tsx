@@ -1,28 +1,50 @@
 'use client';
 
-import { signIn } from "next-auth/react";
+//Import
 import { useState } from "react";
 import Link from 'next/link'
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  //États
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
 
+  const route = useRouter(); // Utilisé pour la redirection vers d'autres pages
 
   const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+
+    e.preventDefault(); //Évite de recharger la page
     setError('');
+
     try {
-      const res = await signUp("credentials", {
-        email,
-        password,
+      //Appel de l'api afin de vérifier si l'inscription est correcte
+      const res = await fetch("/api/auth/register", {
+        method : "POST",
+        headers : {
+          "Content-Type": "application/json",
+        },
+        //Envoie des données 
+        body : JSON.stringify({
+          name : name,
+          email : email,
+           password : password})
       });
-    }
 
+      if(!res.ok){
+        //Si l'api renvoie une erreur on la récupère et on l'affiche
+        const d = await res.json();
+        setError(d.error);
+      } else {
+        route.push("/login"); //Redirige vers la page de connexion
+      }
+
+    } catch (err) {
+      setError("Impossible de se connecter"); //Erreur de réseau
+    };
 }
-
 
   return (
     <div className="bg-gray-300 h-screen flex flex-col">

@@ -1,27 +1,40 @@
 'use client';
 
+//Import
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import Link from 'next/link'
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  //États
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, SetError] = useState('');
+  const [error, setError] = useState(''); 
+
+  const route = useRouter(); // Utilisé pour la redirection vers d'autres pages
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    SetError('');
+    
+    e.preventDefault(); //Évite de recharger la page
+    setError('');
     try {
+      //Appel de la fonction signIn en utilisant le provider credentials
       const res = await signIn("credentials", {
         email,
         password,
+        redirect : false //évite de recharger ou changer de page directement
       });
 
-      
+      if(res.error){
+        //Mise à jour du message d'erreur en cas de réponse null de la part de signIn
+        setError("Email ou mot de passe incorrect");
+      } else if (res.ok){
+        route.push("/"); //Redirige vers la page d'accueil
+      }
 
     } catch (err) {
-      SetError("La connexion à échoué");
+      setError("La connexion à échoué"); //Erreur de réseau
     }
 }
 

@@ -30,7 +30,7 @@ export default function Header() {
                 
                 <div className="text-2xl font-extrabold text-white">
                     <a href="/">
-                        🏡 ImmoApp
+                        Immobillete toi 
                     </a>
                 </div>
                 

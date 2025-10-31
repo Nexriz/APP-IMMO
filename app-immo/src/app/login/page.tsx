@@ -69,8 +69,9 @@ export default function LoginPage() {
             <button type="submit" className="bg-gray-900 text-white py-2 rounded-xl">
               SE CONNECTER
             </button>
+            
 
-            <p>Vous n'avez pas de compte ? <Link href="/signup" className="text-blue-800 hover:underline hover:text-blue-500">Inscrivez-vous</Link> </p>
+            <p>Vous n'avez pas de compte ? <Link href="/register" className="text-blue-800 hover:underline hover:text-blue-500">Inscrivez-vous</Link> </p>
           </form>
           </div>
         </main>

@@ -1,6 +1,6 @@
 
 //Import
-import  prisma  from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
 

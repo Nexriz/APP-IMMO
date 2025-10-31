@@ -5,12 +5,13 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import  prisma  from "@/lib/prisma";
 import bcrypt from 'bcryptjs';
 
-export const { handlers, signIn, signOut, auth } = NextAuth( {
+export const {handlers, signIn, signOut, auth } = NextAuth( {
     adapter : PrismaAdapter(prisma), //Connexion à la base de donnée
 
-    session :{
-        strategy : "jwt", // Utilisation du jeton JWT
-    },
+    session: {
+        strategy: "database",
+        },
+
 
     callbacks: {
         async jwt({ token, user }) {
@@ -46,6 +47,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth( {
 
             //Fonction éxécutée à l'appel de signIn
             async authorize (credentials) {
+
+                if (!credentials) {
+                    return null;
+                }
 
                 //Vérification des champs obligatoires
                 if(!credentials.email || !credentials.password){

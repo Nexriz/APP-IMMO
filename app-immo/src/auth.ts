@@ -2,11 +2,33 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/prisma";
-import bcrypt from 'bcrypt';
+import  prisma  from "@/lib/prisma";
+import bcrypt from 'bcryptjs';
 
 export const { handlers, signIn, signOut, auth } = NextAuth( {
     adapter : PrismaAdapter(prisma), //Connexion à la base de donnée
+
+    session :{
+        strategy : "jwt", // Utilisation du jeton JWT
+    },
+
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+                token.Role = user.Role;
+            }
+            return token;
+        },
+
+        async session({ session, token }) {
+            if (session.user && token.Role) {
+                session.user.id = token.id;
+                session.user.Role = token.Role;
+            }
+            return session;
+  }
+    },
 
     providers : [
         Credentials({
@@ -38,9 +60,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth( {
                 });
 
                 //Vérification si l'utilisateur existe
-                if (!user){
+                if (!user || !user.password) {
                     return null;
-                };
+                }
 
                 //Vérifie que le mot de passe correspond à celui enregistrer dans la base de donnée
                 const PasswordCorrect = await bcrypt.compare(credentials.password as string, user.password);
@@ -59,4 +81,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth( {
             }
         })
     ],
+
+    
 })

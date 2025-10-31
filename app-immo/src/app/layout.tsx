@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "APP-IMMO",
+  title: "immobillete toi",
   description: "Site d'agence immobilière",
 };
 
@@ -26,10 +26,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <Header />
+
+      <head>
+        <title>Immobillette toi</title>
+      </head>
+      
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Header />
         {children}
       </body>
     </html>

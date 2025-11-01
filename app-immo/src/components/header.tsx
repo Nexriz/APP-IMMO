@@ -1,27 +1,7 @@
 "use client";
 
-const LinkAuth = () => {
-    // "Se déconnecter" ou "Se connecter / S'inscrire" selon l'état d'authentification
-    const isAuthenticated = false; 
-
-    return (
-        <div className="flex space-x-4">
-            {isAuthenticated ? (
-                <button className="text-white hover:text-red-300">Se déconnecter</button>
-            ) : (
-                <>
-                    {/* Liens de connexion/inscription remplacés par <a> */}
-                    <a href="/login" className="text-white hover:text-indigo-200 transition duration-150">
-                        Se connecter
-                    </a>
-                    <a href="/signup" className="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium transition duration-150">
-                        S'inscrire
-                    </a>
-                </>
-            )}
-        </div>
-    );
-};
+import Link from "next/link";
+import LinkAuth from "./LinkAuth";
 
 export default function Header() {
     return (
@@ -35,9 +15,9 @@ export default function Header() {
                 </div>
                 
                 <nav className="hidden md:flex space-x-8 items-center">
-                    <a href="/annonces" className="text-white hover:text-indigo-200 font-medium transition duration-150">
+                    <Link href="/annonces" className="text-white hover:text-indigo-200 font-medium transition duration-150">
                         Annonces
-                    </a>
+                    </Link>
                 
                 </nav>
 

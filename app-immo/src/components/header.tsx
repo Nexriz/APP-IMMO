@@ -24,19 +24,28 @@ export default function Header() {
                     <Link href="/annonces" className="text-white hover:text-indigo-200 font-medium transition duration-150">
                         Annonces
                     </Link>
-
-                    {(role === "AGENT" || role === "ADMIN") 
-                    && (
-                        <Link href="/annonces/new" className="bg-green-600 px-3 py-1 rounded hover:bg-green-700">
-                            Ajouter une annonce
-                        </Link>
-                        )}
                 
                 </nav>
 
+                <div className="flex space-x-4 items-center">
+                    {(role === "AGENT" || role === "ADMIN") && (
+                        <div className="flex space-x-3 mr-3">
+                            <a 
+                                href="/annonces/new" 
+                                className="bg-green-500 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow hover:bg-green-600 transition duration-150"
+                            >Ajouter une annonce
+                            </a>
+                            <a href="/annonces/edit" 
+                                className="bg-blue-500 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow hover:bg-blue-600 transition duration-150"
+                            >Gérer mes annonces
+                            </a>
+                        </div>
+                    )}
+                </div>
                 <LinkAuth />
-
+                
             </div>
+            
         </header>
     );
 }

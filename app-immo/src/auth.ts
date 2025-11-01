@@ -1,87 +1,69 @@
-// src/auth.ts
 import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import * as bcrypt from "bcrypt";
 import { Role } from "@prisma/client";
 
-export const { handlers, signIn, signOut, auth } = NextAuth( {
-    adapter : PrismaAdapter(prisma), //Connexion à la base de donnée
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  session: { 
+    strategy: "jwt"  // Utilisation de la stratégie du JWT
+  },
 
-    session :{
-        strategy : "jwt", // Utilisation du jeton JWT
-    },
-
-    callbacks: {
-        async jwt({ token, user }) {
-            if (user) {
-                token.id = user.id;
-                token.Role = user.Role;
-            }
-            return token;
+  providers: [
+    Credentials({
+      credentials: {
+        email: { 
+          label: "Email", 
+          type: "text" 
         },
+        password: { 
+          label: "Mot de passe", 
+          type: "password" 
+        },
+      },
 
-        async session({ session, token }) {
-            if (session.user && token.Role) {
-                session.user.id = token.id;
-                session.user.Role = token.Role;
-            }
-            return session;
-  }
-    },
+      async authorize(credentials) {
+        if (!credentials.email || !credentials.password){
+           return null;
+        };
 
-    providers : [
-        Credentials({
-            //Champs que signIn attends
-            credentials : {
-                email : {
-                    type : "email",
-                    label : "Adresse Email"
-                },
-                password : {
-                    type : "password",
-                    label : "Mot de passe"
-                },
-            },
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email as string },
+        });
+        console.log("Found user in DB: ", user);
 
-            //Fonction éxécutée à l'appel de signIn
-            async authorize (credentials) {
+        if (!user || !user.password){
+           return null;
+        };
 
-                //Vérification des champs obligatoires
-                if(!credentials.email || !credentials.password){
-                    return null;
-                };
-                
-                //Cherche si l'email est bien dans la base de donnée
-                const user = await prisma.user.findUnique({
-                    where : {
-                        email : credentials.email as string
-                    }
-                });
+        const isValid = await bcrypt.compare(credentials.password as string, user.password as string);
+        if (!isValid) {
+           return null;
+        };
 
-                //Vérification si l'utilisateur existe
-                if (!user || !user.password) {
-                    return null;
-                }
-
-                //Vérifie que le mot de passe correspond à celui enregistrer dans la base de donnée
-                const PasswordCorrect = await bcrypt.compare(credentials.password as string, user.password);
-
-                //En cas de succès on renvoie l'objet "user"
-                if (PasswordCorrect){
-                    return {
-                        id : user.id,
-                        name : user.name,
-                        email : user.email,
-                        Role : user.Role                        
-                    }
-                } else {
-                    return null;
-                };
-            }
-        })
-    ],
-
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        };
+      },
+    }),
     
-})
+  ],
+
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id as string;
+        token.role = (user as any).role || Role.USER;
+        console.log("JWT token created:", token);
+      }
+      return token;
+    },
+  },
+
+  pages: {
+    signIn: "/login",
+  },
+});

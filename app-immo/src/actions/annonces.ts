@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "../lib/prisma"; // Chemin vers le client Prisma
+import { prisma } from "../lib/prisma"; // Chemin vers le client Prisma
 import { revalidatePath } from "next/cache";
 import { StatutPublication, StatutBien, TypeBien } from '@prisma/client'; // Pour les enums
 

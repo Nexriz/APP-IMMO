@@ -14,7 +14,7 @@ const LinkAuth = () => {
                     <a href="/login" className="text-white hover:text-indigo-200 transition duration-150">
                         Se connecter
                     </a>
-                    <a href="/signup" className="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium transition duration-150">
+                    <a href="/register" className="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium transition duration-150">
                         S'inscrire
                     </a>
                 </>

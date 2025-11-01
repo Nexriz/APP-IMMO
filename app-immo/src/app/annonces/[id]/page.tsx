@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma"; // Chemin relatif vers src/lib/prisma
+import { prisma } from "@/lib/prisma"; // Chemin relatif vers src/lib/prisma
 import ImageGallery from "@/components/ImageGallery"; // Chemin relatif vers src/components/ImageGallery
 import QuestionForm from "@/components/QuestionForm"; // Chemin relatif vers src/components/QuestionForm
 import { TypeBien, StatutBien } from '@prisma/client'; // Import des enums

@@ -48,9 +48,6 @@ export default function SignUpPage() {
 
   return (
     <div className="bg-gray-300 h-screen flex flex-col">
-      <header className=" bg-gray-500 p-3 flex items-center justify-center">
-        <Link href="/" className="font-bold text-xl text-black hover:text-white">App-Immo</Link>
-      </header>
         <main className="flex items-center justify-center flex-grow pb-10 ">
           <div className="p-8 max-w-md mx-auto border bg-white shadow-lg w-full">
           <h1 className="text-xl font-bold mb-4 text-black">Créer votre compte</h1>

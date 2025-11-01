@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useTransition, useRef } from 'react';
-import { createAnnonce } from '../actions/annonces'; // Chemin relatif vers Server Action
+import { createAnnonce, updateAnnonce } from '../actions/annonces'; // Chemin relatif vers Server Action
 import { TypeBien, StatutBien, Annonce } from '@prisma/client'; // Import des types Prisma
 import { useRouter } from 'next/navigation';
 
@@ -62,8 +62,9 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
         }
 
         startTransition(async () => {
-            // Utiliser la bonne action serveur (nous n'avons que createAnnonce pour l'instant)
-            const result = await createAnnonce(formData); 
+            const action = mode === 'create' ? createAnnonce : updateAnnonce;
+            
+            const result = await action(formData); 
             
             if (result.error) {
                 setError(result.error);
@@ -225,13 +226,13 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                             </button>
                         </div>
                     ))}
-                    {mode === 'edit' && annonceData?.photo.map(p => (
-                        <div key={p.id} className="relative aspect-video rounded-lg overflow-hidden border-2 border-green-500 shadow-md">
-                            <img src={p.url} alt={`Image existante`} className="w-full h-full object-cover" />
-                            <div className="absolute top-0 left-0 bg-green-500 text-white px-2 py-0.5 text-xs font-bold">Existante</div>
-                            {/* NOTE: La suppression d'images existantes nécessiterait une action serveur dédiée */}
-                        </div>
-                    ))}
+                    {mode === 'edit' && annonceData?.photo?.map(p => (
+                    <div key={p.id} className="relative aspect-video rounded-lg overflow-hidden border-2 border-green-500 shadow-md">
+                        <img src={p.url} alt={`Image existante`} className="w-full h-full object-cover" />
+                    <div className="absolute top-0 left-0 bg-green-500 text-white px-2 py-0.5 text-xs font-bold">Existante</div>
+                </div>
+            ))}
+
                 </div>
             </div>
 

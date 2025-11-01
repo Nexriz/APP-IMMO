@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "../lib/prisma"; // Chemin vers le client Prisma
+import {prisma } from "../lib/prisma"; // Chemin vers le client Prisma
 import { revalidatePath } from "next/cache";
 import { StatutPublication, StatutBien, TypeBien } from '@prisma/client'; // Pour les enums
 
@@ -110,32 +110,63 @@ export async function deleteAnnonce(annonceId: number, agentId: string) {
  * Met à jour une annonce existante.
  * NOTE: Cette fonction devrait être étendue pour gérer la suppression/ajout de photos existantes.
  */
-export async function updateAnnonce(annonceId: number, agentId: string, formData: FormData) {
-    // Logique de mise à jour simplifiée pour l'exemple
-    
-    // 1. Validation de l'ID et de l'agent (similaire à deleteAnnonce)
-    const existingAnnonce = await prisma.annonce.findUnique({
-        where: { id: annonceId },
-    });
+// annonces.ts (nouveau Server Action à ajouter)
 
-    if (!existingAnnonce || existingAnnonce.userId !== agentId) {
-        return { error: "Permission refusée ou annonce introuvable." };
-    }
+/**
+ * Met à jour une annonce existante et gère les nouvelles photos.
+ * NOTE: La suppression des anciennes photos devrait être gérée ici aussi.
+ */
+export async function updateAnnonce(formData: FormData) {
+    try {
+        const annonceId = parseInt(formData.get('annonceId') as string);
+        const titre = formData.get('titre') as string;
+        const price = parseFloat(formData.get('price') as string);
+        const description = formData.get('description') as string;
+        const type = formData.get('type') as TypeBien;
+        const statutBien = formData.get('statut') as StatutBien;
+        const dateDispo = formData.get('dateDispo') as string;
+        const agentId = formData.get('agentId') as string;
+        const files = formData.getAll('images') as File[];
 
-    // 2. Mise à jour des champs
-    const titre = formData.get('titre') as string;
-    const price = parseFloat(formData.get('price') as string);
-    // ... autres champs ...
 
-    await prisma.annonce.update({
-        where: { id: annonceId },
-        data: {
-            titre,
-            prix: price,
-            // ... mise à jour d'autres champs
+        const annonceMiseAJour = await prisma.annonce.update({
+            where: { id: annonceId, userId: agentId },
+            data: {
+                titre,
+                prix: price,
+                description,
+                type,
+                statutBien,
+                dateDispo: new Date(dateDispo),
+            }
+        });
+
+       
+        const imageData = files
+            .filter(file => file.size > 0)
+            .map((file, index) => {
+                const imageUrl = `/uploads/annonces/${annonceMiseAJour.id}_new_${index}_${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
+                
+                return {
+                    url: imageUrl,
+                    photoName: file.name,
+                    mimeType: file.type || 'application/octet-stream',
+                    annonceId: annonceMiseAJour.id,
+                };
+            });
+        
+        if (imageData.length > 0) {
+            await prisma.photo.createMany({
+                data: imageData
+            });
         }
-    });
 
-    revalidatePath(`/annonces/${annonceId}`);
-    return { success: true, annonceId };
+        // 3. Revalidation et succès
+        revalidatePath(`/annonces/${annonceId}`);
+        return { success: true, annonceId: annonceMiseAJour.id };
+
+    } catch (e) {
+        console.error("Erreur lors de la mise à jour de l'annonce:", e);
+        return { error: "Une erreur interne est survenue lors de la mise à jour." };
+    }
 }

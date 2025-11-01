@@ -13,7 +13,9 @@ export default function NewAnnoncePage() {
         return <p className="flex items-center justify-center h-screen text-3xl font-bold">Chargement de la page...</p>;
     };
 
-    if (!session || (userRole !== 'AGENT' && userRole !== 'ADMIN')||  !userId) {
+    
+
+    if (!session || userRole !== 'AGENT' && userRole !== 'ADMIN'||  !userId) {
         return (
             <div className="container mx-auto py-20 text-center">
                 <h1 className="text-3xl font-bol text-red-600 mb-4">Accès Refusé</h1>

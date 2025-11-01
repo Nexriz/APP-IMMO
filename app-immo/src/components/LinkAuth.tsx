@@ -15,7 +15,7 @@ export default function LinkAuth() {
   if (session?.user) {
     return (
       <div className="flex space-x-4 items-center">
-        <span className="text-red ">Bonjour {session.user.name}  </span>
+        <span className="text-purple ">Bonjour {session.user.name} , {session.user.role}  </span>
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="text-white hover:text-red-300 transition duration-150"

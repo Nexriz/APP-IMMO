@@ -27,11 +27,16 @@ export async function middleware(request : NextRequest){
         return NextResponse.redirect(new URL('/', request.url));
     };
 
+    if(request.nextUrl.pathname.startsWith('/admin') && token.role !== "ADMIN"){
+        return NextResponse.redirect(new URL('/', request.url));
+    }
+
     return NextResponse.next();
 }
 
 export const config = {
     matcher : [
         '/annonces/:path*',
+        '/admin'
     ],
 };

@@ -33,9 +33,9 @@ export default function AdminPage(){
         }
         getUsers(); //appel de la fonction
     }, []);
-
     console.log(users);
 
+    //Vérification que l'utilisateur a bien une session et qu'il a le rôle d'admin
     if (!session || session.user.role !== "ADMIN") {
         return (
         <p className="flex items-center justify-center h-screen text-2xl font-semibold text-red-500">
@@ -44,9 +44,10 @@ export default function AdminPage(){
         );
     }
 
+    //Appel à chaque changement de rôle dans le panneau admin
     const handleRole = async (id: number, newRole : string) => {
         try {
-            //Appel d'api pour changer le rôle de l'utilisateur 
+            //Appel API pour changer le rôle de l'utilisateur 
             const res = await fetch(`/api/admin/users`, {
                 method: "PUT",
                 headers: { 
@@ -58,6 +59,7 @@ export default function AdminPage(){
                 }),
             });
 
+            //Si la réponse recu de L'API n'est pas bonne on throw une erreur
             if(!res.ok){
                 throw new Error("Erreur API, aucune réponse");
             };

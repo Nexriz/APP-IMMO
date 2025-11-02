@@ -134,9 +134,6 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
                         <h3 className="text-xl font-bold mb-4 underline text-gray-800">Informations Complémentaires</h3>
                         <p className="text-black font-bold">Statut du Bien: {annonce.statutBien}</p>
                         <p className="text-black font-bold">Type de Transaction: {annonce.type}</p>
-                        <a href="#" className="mt-6 block w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition duration-150">
-                            Contacter l'Agent
-                        </a>
                     </div>
 
                 </div>

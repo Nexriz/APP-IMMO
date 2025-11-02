@@ -48,14 +48,14 @@ export default function QuestionForm({ annonceId }: QuestionFormProps) {
 
   return (
     <div className="mt-6 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
-      <h3 className="text-xl font-semibold mb-4 text-gray-800">Poser une question</h3>
+      <h3 className="text-xl font-semibold mb-4 text-black">Poser une question</h3>
       <form onSubmit={handleSubmit}>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={4}
           placeholder="Posez votre question sur cette propriété..."
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+          className="w-full p-3 border border-gray-300 text-black rounded-lg"
           disabled={isSubmitting}
         />
         <button

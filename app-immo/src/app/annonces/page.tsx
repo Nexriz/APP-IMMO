@@ -7,7 +7,7 @@ const STATUT_PUBLIE = 'PUBLIE' as any;
 
 export default async function AnnoncesPage() {
     try {
-        // 1. Récupération des données (Server Side)
+        // 1. Récupération des données 
         const annonces = await prisma.annonce.findMany({
             include: { photo: true },
             where: {
@@ -30,7 +30,7 @@ export default async function AnnoncesPage() {
                 
                 {annonces.length === 0 && (
                     <div className="text-center py-20 bg-white rounded-xl shadow-inner">
-                        <p className="text-xl text-gray-600">Aucune annonce publiée pour le moment.</p>
+                        <p className="text-xl text-gray-600">Aucune annonce publiée pour le moment</p>
                     </div>
                 )}
             </div>

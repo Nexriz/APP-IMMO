@@ -2,12 +2,23 @@ import {prisma} from "@/lib/prisma"; // Chemin relatif vers src/lib/prisma
 import ImageGallery from "@/components/ImageGallery"; // Chemin relatif vers src/components/ImageGallery
 import QuestionForm from "@/components/QuestionForm"; // Chemin relatif vers src/components/QuestionForm
 import { TypeBien, StatutBien } from '@prisma/client'; // Import des enums
+import { auth } from "@/auth"; // vient de ton fichier src/auth.ts
+import { redirect } from "next/navigation";
+
 
 interface AnnonceDetailPageProps {
     params: { id: string };
 }
 
 export default async function AnnonceDetailPage({ params }: AnnonceDetailPageProps) {
+
+    const session = await auth();
+
+    
+    if (!session) {
+        redirect("/annonces/loginRequired"); 
+    }
+
     const annonceId = parseInt(params.id);
 
     if (isNaN(annonceId)) {

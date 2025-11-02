@@ -14,13 +14,13 @@ export default function LinkAuth() {
   // Si l'utilisateur est connecté
   if (session?.user) {
     return (
-      <div className="flex space-x-4 items-center">
-        <span className="text-purple ">Bonjour {session.user.name} , {session.user.role}  </span>
+      <div className="flex space-x-8 font-bold items-center">
+        <span className="text-purple ">{session.user.name} ({session.user.role})  </span>
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="text-white hover:text-red-300 transition duration-150"
+          className="text-white font-bold hover:text-red-300 transition duration-150"
         >
-          Se déconnecter
+          déconnecter
         </button>
       </div>
     );

@@ -4,93 +4,94 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-//Typage pour typescript
 interface Annonce {
   id: number;
   titre: string;
 }
 
 export default function EditAnnoncesPage() {
-    const router = useRouter();
-    const [annonces, setAnnonces] = useState<Annonce[]>([]);
-    const { data: session, status } = useSession();
+  const router = useRouter();
+  const [annonces, setAnnonces] = useState<Annonce[]>([]);
+  const { data: session, status } = useSession();
   
-    const userId = session?.user.id;
+  const userId = session?.user.id;
+  const userRole = session?.user.role;
 
-    //Permet d'éviter les effets de bords sachant qu'on appelle fetch
-    useEffect(() => {
-        async function getAnnonces() {
-            try {
-                const res = await fetch(`/api/annonces/user/${userId}`); //Appel api récupérant tous les annonces de l'utilisateur
-                const d = await res.json(); //Récupération de la liste des annonces
+  useEffect(() => {
+    async function getAnnonces() {
+      try {
+        const url = userRole === "ADMIN" ? `/api/admin/annonces` : `/api/annonces/user/${userId}`;
+        const res = await fetch(url);
+        const data = await res.json();
 
-                if(!res.ok){
-                //Si l'api renvoie une erreur on la récupère et on l'affiche
-                console.error("Problème nous n'avons pas trouvées les annonces !", d.error);
-                } else {
-                    console.log("Annonces trouvées : ", d);
-                    setAnnonces(d); //Met a jour la liste des annonces actuelles
-                }
-            } catch (err) {
-                console.error("Erreur réseau ", err);
-            }
+        if (!res.ok) {
+          console.error("Problème, annonces non trouvées !", data.error);
+        } else {
+          setAnnonces(data);
         }
-        getAnnonces(); //appel de la fonction
-    }, [userId]);
+      } catch (err) {
+        console.error("Erreur réseau", err);
+      }
+    }
+    getAnnonces();
+  }, [userId, userRole]);
 
-    //Affichage si la session n'a pas encore été trouvée (en état de chargement)
-    if (status === "loading"){
-         return <p className="flex items-center justify-center h-screen text-3xl font-bold">Chargement de la page...</p>;
-    };
+  if (status === "loading") {
+    return <p className="flex items-center justify-center h-screen text-3xl font-bold">Chargement de la page...</p>;
+  }
 
-    //Affichage si l'utilisateur n'est pas connecté
-    if (!session){
-         return <p className="flex items-center justify-center h-screen text-3xl font-bold">Connectez-vous à votre compte avant de pouvoir regardé votre liste d'annonces</p>;
-    };
+  if (!session) {
+    return <p className="flex items-center justify-center h-screen text-3xl font-bold">Connectez-vous pour voir vos annonces</p>;
+  }
 
-    //Affichage si on attends de l'api la liste des annonces
-    if (!annonces){
-        return <p className="flex items-center justify-center h-screen text-3xl font-bold">Chargement des annonces...</p>;
-    };
+  if (!annonces) {
+    return <p className="flex items-center justify-center h-screen text-3xl font-bold">Chargement des annonces...</p>;
+  }
 
-    //Affiche une alerte demandant la confirmation de la supression de l'annonce
-    const handleDelete = async (id: number) => {
-        if (!confirm("Voulez vous vraiment supprimer cette annonce ?")){
-            return;
-        };
+  const handleDelete = async (id: number) => {
+    if (!confirm("Voulez-vous vraiment supprimer cette annonce ?")) return;
 
-        try {
-            //En cas de réponse ok on appel une api qui va supprimer l'annonce de la bdd
-            await fetch(`/api/annonces/${id}`, { method: "DELETE" });
-            setAnnonces((previous) => previous.filter((annonce) => annonce.id !== id)); //Enlève l'annonce de la liste des annonces
-        } catch (err) {
-            console.error(err);
-            alert("Erreur lors de la suppression");
-        }
-    };
+    try {
+      await fetch(`/api/annonces/${id}`, { method: "DELETE" });
+      setAnnonces((prev) => prev.filter((annonce) => annonce.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la suppression");
+    }
+  };
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4 border-b pb-2">Mes annonces</h1>
-      {annonces.length === 0 && <p>Vous n'avez aucune annonce pour le moment</p>}
-      <ul>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6 border-b pb-2">
+        {userRole === "ADMIN" ? "Toutes les annonces" : "Mes annonces"}
+      </h1>
+
+      {annonces.length === 0 && (
+        <p className="text-gray-500 text-center py-10">Vous n'avez aucune annonce pour le moment</p>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {annonces.map((annonce) => (
-          <li key={annonce.id} className="mb-2 flex justify-between items-center border p-2 rounded">
+          <div
+            key={annonce.id}
+            className="flex flex-col justify-between bg-white rounded-xl shadow-md hover:shadow-xl transition p-4"
+          >
             <span
-              className="cursor-pointer text-white"
+              className="text-lg font-semibold cursor-pointer text-indigo-600 hover:text-indigo-800 transition"
               onClick={() => router.push(`/annonces/edit/${annonce.id}`)}
             >
               {annonce.titre}
             </span>
+
             <button
-              className="bg-red-500 text-white px-2 py-1 rounded"
+              className="mt-3 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition"
               onClick={() => handleDelete(annonce.id)}
             >
               Supprimer
             </button>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

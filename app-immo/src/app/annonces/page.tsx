@@ -18,7 +18,7 @@ export default async function AnnoncesPage() {
 
         return (
             <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
-                <h1 className="text-4xl font-extrabold text-gray-900 mb-8 border-b pb-4">
+                <h1 className="text-4xl font-extrabold text-white mb-8 border-b pb-4">
                     Découvrez toutes nos annonces immobilières
                 </h1>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -40,7 +40,7 @@ export default async function AnnoncesPage() {
         console.error("Erreur lors du chargement des annonces:", error);
         return (
             <div className="text-center py-20 text-red-600">
-                Erreur de chargement. Veuillez vérifier la connexion à la base de données (Prisma) et les dépendances.
+                Erreur de chargement. Veuillez vérifier la connexion à la base de données et les dépendances.
             </div>
         );
     }

@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition, useRef } from 'react';
 import { createAnnonce, updateAnnonce } from '../actions/annonces'; // Chemin relatif vers Server Action
-import { TypeBien, StatutBien, Annonce } from '@prisma/client'; // Import des types Prisma
+import { StatutBien, Annonce } from '@prisma/client'; // Import des types Prisma
 import { useRouter } from 'next/navigation';
 
 // Définition des types pour le mode édition
@@ -16,32 +16,18 @@ interface AnnonceFormProps {
     annonceData?: AnnonceWithPhotos; // Optionnel pour l'édition
 }
 
-// Fonction utilitaire pour convertir les enums en options de formulaire
-const enumToOptions = (enumObject: any) =>
-    Object.keys(enumObject).map(key => ({
-        label: key.charAt(0) + key.slice(1).toLowerCase().replace('_', ' '),
-        value: key,
-    }));
-
-// Options pour les menus déroulants
-const typeOptions = enumToOptions(TypeBien);
-const statutBienOptions = enumToOptions(StatutBien);
-
 export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
     const [files, setFiles] = useState<File[]>([]);
-    const formRef = useRef<HTMLFormElement>(null);
 
     // Initialisation des valeurs pour l'édition ou la création
     const initialData = {
         titre: annonceData?.titre || '',
         description: annonceData?.description || '',
         price: annonceData?.prix || 0,
-        type: annonceData?.type || TypeBien.LOCATION,
         statut: annonceData?.statutBien || StatutBien.DISPONIBLE,
-        dateDispo: annonceData?.dateDispo ? new Date(annonceData.dateDispo).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
     };
 
     // Gère la soumission du formulaire
@@ -56,11 +42,6 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
         // Ajouter l'ID de l'agent
         formData.append('agentId', agentId);
         
-        // Ajouter l'ID de l'annonce en mode édition
-        if (mode === 'edit' && annonceData) {
-             formData.append('annonceId', annonceData.id.toString());
-        }
-
         startTransition(async () => {
             const action = mode === 'create' ? createAnnonce : updateAnnonce;
             
@@ -69,7 +50,6 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
             if (result.error) {
                 setError(result.error);
             } else if (result.success) {
-                alert(`Annonce ${mode === 'create' ? 'créée' : 'mise à jour'} avec succès!`);
                 router.push(`/annonces/${result.annonceId}`);
             }
         });
@@ -90,7 +70,7 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
     };
 
     return (
-        <form ref={formRef} action={handleSubmit} className="space-y-6 bg-white p-8 rounded-xl shadow-lg">
+        <form action={handleSubmit} className="space-y-6 bg-white p-8 rounded-xl shadow-lg">
             
             {/* -------------------- Message d'erreur -------------------- */}
             {error && (
@@ -100,7 +80,6 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                 </div>
             )}
             
-            {/* -------------------- Champs de texte de base -------------------- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 {/* Titre */}
@@ -112,7 +91,7 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                         id="titre"
                         defaultValue={initialData.titre}
                         required
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="mt-1 block w-full border border-gray-300 text-black rounded-md shadow-sm p-3"
                     />
                 </div>
                 
@@ -123,11 +102,9 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                         type="number"
                         name="price"
                         id="price"
-                        defaultValue={initialData.price}
                         required
                         min="0"
-                        step="0.01"
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="mt-1 block w-full border border-gray-300 text-black rounded-md shadow-sm p-3"
                     />
                 </div>
             </div>
@@ -138,10 +115,8 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                 <textarea
                     name="description"
                     id="description"
-                    defaultValue={initialData.description}
                     rows={4}
-                    required
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-gray-300 text-black rounded-md shadow-sm p-3"
                 />
             </div>
 
@@ -153,12 +128,11 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                     <select
                         name="type"
                         id="type"
-                        defaultValue={initialData.type}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
+                        defaultValue={"LOCATION"}
+                        className="mt-1 block w-full border border-gray-300 text-black rounded-md shadow-sm p-3"
                     >
-                        {typeOptions.map(option => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
-                        ))}
+                        <option value={"VENTE"}>VENTE</option>
+                        <option value={"LOCATION"}>LOCATION</option>
                     </select>
                 </div>
                  {/* Statut du Bien */}
@@ -168,11 +142,11 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                         name="statut"
                         id="statut"
                         defaultValue={initialData.statut}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="mt-1 block w-full border border-gray-300 text-black rounded-md shadow-sm p-3 "
                     >
-                        {statutBienOptions.map(option => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
-                        ))}
+                        <option value={"DISPONIBLE"}>DISPONIBLE</option>
+                        <option value={"LOUE"}>LOUE</option>
+                        <option value={"VENDU"}>VENDU</option>
                     </select>
                 </div>
                  {/* Date de disponibilité */}
@@ -182,9 +156,8 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                         type="date"
                         name="dateDispo"
                         id="dateDispo"
-                        defaultValue={initialData.dateDispo}
                         required
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="mt-1 block w-full border border-gray-300 text-black rounded-md shadow-sm p-3"
                     />
                 </div>
             </div>

@@ -89,6 +89,8 @@ model Question {
   annonce Annonce @relation(fields: [annonceId], references: [id])
   annonceId Int
   createdAt DateTime @default(now())
+  userName    String? 
+  agentName   String?
 }
 
 enum TypeBien {

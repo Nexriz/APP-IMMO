@@ -104,17 +104,10 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
                         </div>
 
                     </div>
-                    
-                    {/* 6. Sidebar (pour les statistiques ou actions futures) */}
                     <div className="lg:w-1/3 p-6 bg-white rounded-xl shadow-lg h-fit">
                         <h3 className="text-xl font-semibold mb-4 text-gray-800">Informations Complémentaires</h3>
-                        {/* Ajoutez ici d'autres détails comme la ville, le statut du bien, etc. */}
                         <p className="text-gray-600">Statut du Bien: {annonce.statutBien}</p>
                         <p className="text-gray-600">Type de Transaction: {annonce.type}</p>
-                        {/* Bouton de contact pour l'agent (future fonctionnalité) */}
-                        <a href="#" className="mt-6 block w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition duration-150">
-                            Contacter l'Agent
-                        </a>
                     </div>
 
                 </div>

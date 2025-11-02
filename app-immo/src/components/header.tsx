@@ -41,6 +41,14 @@ export default function Header() {
                             </a>
                         </div>
                     )}
+                    <div className="flex space-x-3 mr-3">
+                        {(role === "ADMIN") && (
+                            <a href="/admin" className="bg-red-500 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow hover:bg-red-600 transition duration-150"
+                            >
+                                Admin roles
+                            </a>
+                        )}
+                    </div>
                 </div>
                 <LinkAuth />
                 

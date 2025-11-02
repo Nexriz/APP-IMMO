@@ -1,6 +1,7 @@
 import {prisma} from "@/lib/prisma"; // Chemin relatif vers src/lib/prisma
 import ImageGallery from "@/components/ImageGallery"; // Chemin relatif vers src/components/ImageGallery
 import QuestionForm from "@/components/QuestionForm"; // Chemin relatif vers src/components/QuestionForm
+import AnswerForm from "@/components/AnswerForm"; // Chemin relatif vers src/components/ReponseForm
 import { TypeBien } from '@prisma/client'; // Import des enums
 import { auth } from "@/auth"; // vient de ton fichier src/auth.ts
 import { redirect } from "next/navigation";
@@ -30,7 +31,9 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
             where: { id: annonceId },
             include: { 
                 photo: true, // Photos
-                question: true, // Questions
+                question: {
+                    include: { user: { select: { name: true } } }
+                }, // Questions avec nom utilisateur
                 user: { select: { name: true } } // Agent
             },
         });
@@ -80,24 +83,50 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
                         
                         {/* 4. Section Questions/Réponses */}
                         <div className="mt-8">
-                            <h3 className="text-2xl font-semibold mb-4 text-white">Questions ({annonce.question.length})</h3>
+                            <h3 className="text-2xl font-semibold mb-4 text-white">
+                                Questions ({annonce.question.length})
+                            </h3>
+
                             <div className="space-y-4">
                                 {annonce.question.map(q => (
-                                    <div key={q.id} className="p-4 bg-gray-100 rounded-lg shadow-sm border border-gray-200">
-                                        <p className="font-medium text-gray-700">Q: {q.content}</p>
-                                        <div className="mt-2 pl-4 border-l-2 border-indigo-500">
-                                            {q.answer ? (
-                                                <p className="text-sm text-gray-800">R: {q.answer}</p>
-                                            ) : (
-                                                <p className="text-sm text-gray-500 italic">En attente de réponse de l'agent...</p>
-                                            )}
-                                        </div>
+                                <div key={q.id} className="p-4 bg-gray-100 rounded-lg shadow-sm border border-gray-200">
+                                    <p className="font-medium text-gray-700">
+                                    Q: {q.content}{" "}
+                                    <span className="text-sm text-gray-500 italic">
+                                        — posée par {q.user?.name || "Utilisateur inconnu"}
+                                    </span>
+                                    </p>
+                                    <div className="mt-2 pl-4 border-l-2 border-indigo-500">
+                                    {q.answer ? (
+                                        <p className="text-sm text-gray-800">
+                                        R: {q.answer}{" "}
+                                        <span className="text-gray-500 italic">— agent</span>
+                                        </p>
+                                    ) : (
+                                        <p className="text-sm text-gray-500 italic">
+                                        En attente de réponse de l'agent...
+                                        </p>
+                                    )}
                                     </div>
+                                </div>
                                 ))}
                             </div>
-                            
-                            <QuestionForm annonceId={annonce.id} />
+
+                            {/* Formulaire conditionnel */}
+                            {session?.user?.role === "USER" && (
+                                <QuestionForm annonceId={annonce.id} />
+                            )}
+                            {session?.user?.role !== "USER" &&
+                                annonce.question.map((q) => (
+                                    <div key={q.id} className="mt-4">
+                                    {!q.answer && (
+                                        <AnswerForm questionId={q.id} />
+                                    )}
+                                    </div>
+                                ))}
+
                         </div>
+
 
                     </div>
                     

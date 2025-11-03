@@ -45,6 +45,22 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
 
         const isLocation = annonce.type === TypeBien.LOCATION;
 
+        {/*//Filtrage des questions selon le rôle du user*/}
+        let questionsFiltrees = annonce.question
+
+        if (session.user.role === "USER") {
+        // L'utilisateur normal ne voit que ses propres questions
+        questionsFiltrees = annonce.question.filter(
+            (q) => q.userId === session.user.id
+        );
+        } else if (session.user.role === "AGENT") {
+        // L’agent ne voit que les questions des annonces qu’il gère
+        if (annonce.userId !== session.user.id) {
+            questionsFiltrees = []; // pas son annonce → aucune question affichée
+        }
+        }
+        // oui et l'ADMIN voit tout
+
         return (
             <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
                 
@@ -81,69 +97,73 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
                                 </p>
                             </div>
                         </div>
+
                         
                         {/* 4. Section Questions/Réponses */}
                         <div className="mt-8">
                             <h3 className="text-2xl font-semibold mb-4 text-white">
-                                Questions ({annonce.question.length})
+                                Questions ({questionsFiltrees.length})
                             </h3>
 
                             <div className="space-y-4">
-                                {annonce.question.map(q => (
-                                    <div key={q.id} className="p-4 bg-gray-100 rounded-lg shadow-sm border border-gray-200 relative">
+                                {questionsFiltrees.map((q) => (
+                                <div
+                                    key={q.id}
+                                    className="p-4 bg-gray-100 rounded-lg shadow-sm border border-gray-200 relative"
+                                >
+                                    
+                                    {(session?.user?.role === "ADMIN" || session?.user?.id === annonce.userId) && (
+                                        <DeleteButton questionId={q.id} type="question" />
+                                    )}
 
-                                        {/* Bouton suppression question */}
-                                        {(session?.user?.role === "ADMIN" || session?.user?.id === annonce.userId) && (
-                                            <DeleteButton questionId={q.id} type="question" />
-                                        )}
-
-
-                                        <p className="font-medium text-gray-700">
+                                    <p className="font-medium text-gray-700">
                                         Q: {q.content}{" "}
-                                        <span className="text-sm text-gray-500 italic">
-                                            — posée par {q.user?.name || "Utilisateur inconnu"}
-                                        </span>
+                                    <span className="text-sm text-gray-500 italic">
+                                        — posée par {q.user?.name || "Utilisateur inconnu"}
+                                    </span>
+                                    </p>
+
+                                    <div className="mt-2 pl-4 border-l-2 border-indigo-500">
+                                    {q.answer ? (
+                                        <div className="flex justify-between items-start">
+                                        <p className="text-sm text-gray-800">
+                                            R: {q.answer}{" "}
+                                            <span className="text-gray-500 italic">— agent</span>
                                         </p>
 
-                                        <div className="mt-2 pl-4 border-l-2 border-indigo-500">
-                                        {q.answer ? (
-                                            <div className="flex justify-between items-start">
-                                            <p className="text-sm text-gray-800">
-                                                R: {q.answer}{" "}
-                                                <span className="text-gray-500 italic">— agent</span>
-                                            </p>
-
-                                            {/* Bouton suppression réponse */}
-                                            {(session?.user?.role === "ADMIN" || session?.user?.id === annonce.userId) && (
-                                                <DeleteButton questionId={q.id} type="answer" />
-                                            )}
-
-                                            </div>
-                                        ) : (
-                                            <p className="text-sm text-gray-500 italic">
-                                            En attente de réponse de l'agent...
-                                            </p>
+                                        {(session?.user?.role === "ADMIN" ||
+                                            session?.user?.id === annonce.userId) && (
+                                            <DeleteButton questionId={q.id} type="answer" />
                                         )}
                                         </div>
+                                    ) : (
+                                        <p className="text-sm text-gray-500 italic">
+                                        En attente de réponse de l'agent...
+                                        </p>
+                                    )}
                                     </div>
-                                    ))}
-
+                                </div>
+                                ))}
                             </div>
 
-                            {/* Formulaire conditionnel */}
+                            {/* Formulaire de question visible uniquement pour les utilisateurs */}
                             {session?.user?.role === "USER" && (
                                 <QuestionForm annonceId={annonce.id} />
                             )}
+
+                            {/* Formulaire de réponse visible pour agent/admin et seulement sur les questions filtrées */}
                             {session?.user?.role !== "USER" &&
-                                annonce.question.map((q) => (
-                                    <div key={q.id} className="mt-4">
-                                    {!q.answer && (
+                                questionsFiltrees.map((q) => (
+                                <div key={q.id} className="mt-4">
+                                    {!q.answer &&
+                                    (session.user.role === "ADMIN" ||
+                                        annonce.userId === session.user.id) && (
                                         <AnswerForm questionId={q.id} />
                                     )}
-                                    </div>
+                                </div>
                                 ))}
+                            </div>
 
-                        </div>
 
 
                     </div>

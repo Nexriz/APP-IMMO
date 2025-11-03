@@ -11,28 +11,10 @@ export async function POST(req: Request) {
     }
 
     const { questionId, answer } = await req.json();
+    
 
     if (!questionId || !answer.trim()) {
       return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
-    }
-
-    const question = await prisma.question.findUnique({
-      where: { id: questionId },
-      include: {
-        user: true,
-        annonce: { include: { user: true } },
-      },
-    });
-
-    if (!question) {
-      return NextResponse.json({ error: "Question introuvable" }, { status: 404 });
-    }
-
-    if (
-      session.user.role !== "ADMIN" &&
-      session.user.id !== question.annonce.userId
-    ) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
     }
 
     // Vérifie que l’utilisateur est un agent (ou admin)
@@ -44,13 +26,6 @@ export async function POST(req: Request) {
     await prisma.question.update({
       where: { id: questionId },
       data: { answer },
-    });
-
-    await prisma.notification.create({
-    data: {
-      message: `Votre question sur "${question.annonce.titre}" a reçu une réponse.`,
-      userId: question.user.id,
-      },
     });
 
     return NextResponse.json({ success: true });

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import LinkAuth from "./LinkAuth";
+import NotificationBell from "./Notification";  
 import { useSession } from "next-auth/react";
 
 export default function Header() {
@@ -44,7 +45,10 @@ export default function Header() {
                             Admin
                         </Link>
                     )}
-
+                    <nav className="flex justify-end p-4 bg-indigo-600 text-white">
+                        {role !== undefined && <NotificationBell />}
+                        </nav>
+                    
                     <LinkAuth />
                 </div>
             </div>

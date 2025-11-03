@@ -4,24 +4,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 generator client {
   provider = "prisma-client-js"
   // ⚠ pas de clé "output" pour rester compatible averc Next
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?        @unique
   emailVerified DateTime?
   image         String?
   password      String?
-  role          Role      @default(USER)
+  role          Role           @default(USER)
   annonce       Annonce[]
   accounts      Account[]
   sessions      Session[]
   Question      Question[]
+  notifications Notification[]
 }
 
 model Account {
@@ -38,6 +38,7 @@ model Account {
   id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
 }
 
@@ -45,19 +46,20 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
+
   @@unique([identifier, token])
 }
 
 model Annonce {
-  id          Int             @id @default(autoincrement())
+  id          Int               @id @default(autoincrement())
   titre       String
-  type        TypeBien  @default(LOCATION)  
-  description String ?
+  type        TypeBien          @default(LOCATION)
+  description String?
   prix        Float
-  statutPub   StatutPublication   @default(PUBLIE)
+  statutPub   StatutPublication @default(PUBLIE)
   statutBien  StatutBien
-  dateDispo   DateTime            @default(now())
-  user        User  @relation(fields: [userId], references: [id])
+  dateDispo   DateTime          @default(now())
+  user        User              @relation(fields: [userId], references: [id])
   userId      String
   photo       Photo[]
   question    Question[]
@@ -72,25 +74,34 @@ model Session {
 }
 
 model Photo {
-  id Int @id @default(autoincrement())
-  url String
-  photoName String ?
-  annonce Annonce @relation(fields: [annonceId], references: [id], onDelete : Cascade)
+  id        Int      @id @default(autoincrement())
+  url       String
+  photoName String?
+  annonce   Annonce  @relation(fields: [annonceId], references: [id], onDelete: Cascade)
   annonceId Int
   createdAt DateTime @default(now())
 }
 
 model Question {
-  id Int @id @default(autoincrement())
-  content String
-  answer String ?
+  id        Int      @id @default(autoincrement())
+  content   String
+  answer    String?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  annonce Annonce @relation(fields: [annonceId], references: [id])
+  annonce   Annonce  @relation(fields: [annonceId], references: [id])
   annonceId Int
   createdAt DateTime @default(now())
-  userName    String? 
-  agentName   String?
+  userName  String?
+  agentName String?
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 enum TypeBien {

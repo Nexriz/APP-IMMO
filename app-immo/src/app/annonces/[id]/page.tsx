@@ -2,6 +2,7 @@ import {prisma} from "@/lib/prisma"; // Chemin relatif vers src/lib/prisma
 import ImageGallery from "@/components/ImageGallery"; // Chemin relatif vers src/components/ImageGallery
 import QuestionForm from "@/components/QuestionForm"; // Chemin relatif vers src/components/QuestionForm
 import AnswerForm from "@/components/AnswerForm"; // Chemin relatif vers src/components/ReponseForm
+import DeleteButton from "@/components/DeleteButton"; // Chemin relatif vers src/components/DeleteButton
 import { TypeBien } from '@prisma/client'; // Import des enums
 import { auth } from "@/auth"; // vient de ton fichier src/auth.ts
 import { redirect } from "next/navigation";
@@ -89,27 +90,44 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
 
                             <div className="space-y-4">
                                 {annonce.question.map(q => (
-                                <div key={q.id} className="p-4 bg-gray-100 rounded-lg shadow-sm border border-gray-200">
-                                    <p className="font-medium text-gray-700">
-                                    Q: {q.content}{" "}
-                                    <span className="text-sm text-gray-500 italic">
-                                        — posée par {q.user?.name || "Utilisateur inconnu"}
-                                    </span>
-                                    </p>
-                                    <div className="mt-2 pl-4 border-l-2 border-indigo-500">
-                                    {q.answer ? (
-                                        <p className="text-sm text-gray-800">
-                                        R: {q.answer}{" "}
-                                        <span className="text-gray-500 italic">— agent</span>
+                                    <div key={q.id} className="p-4 bg-gray-100 rounded-lg shadow-sm border border-gray-200 relative">
+
+                                        {/* Bouton suppression question */}
+                                        {(session?.user?.role === "ADMIN" || session?.user?.id === annonce.userId) && (
+                                            <DeleteButton questionId={q.id} type="question" />
+                                        )}
+
+
+                                        <p className="font-medium text-gray-700">
+                                        Q: {q.content}{" "}
+                                        <span className="text-sm text-gray-500 italic">
+                                            — posée par {q.user?.name || "Utilisateur inconnu"}
+                                        </span>
                                         </p>
-                                    ) : (
-                                        <p className="text-sm text-gray-500 italic">
-                                        En attente de réponse de l'agent...
-                                        </p>
-                                    )}
+
+                                        <div className="mt-2 pl-4 border-l-2 border-indigo-500">
+                                        {q.answer ? (
+                                            <div className="flex justify-between items-start">
+                                            <p className="text-sm text-gray-800">
+                                                R: {q.answer}{" "}
+                                                <span className="text-gray-500 italic">— agent</span>
+                                            </p>
+
+                                            {/* Bouton suppression réponse */}
+                                            {(session?.user?.role === "ADMIN" || session?.user?.id === annonce.userId) && (
+                                                <DeleteButton questionId={q.id} type="answer" />
+                                            )}
+
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-gray-500 italic">
+                                            En attente de réponse de l'agent...
+                                            </p>
+                                        )}
+                                        </div>
                                     </div>
-                                </div>
-                                ))}
+                                    ))}
+
                             </div>
 
                             {/* Formulaire conditionnel */}
@@ -134,9 +152,6 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
                         <h3 className="text-xl font-bold mb-4 underline text-gray-800">Informations Complémentaires</h3>
                         <p className="text-black font-bold">Statut du Bien: {annonce.statutBien}</p>
                         <p className="text-black font-bold">Type de Transaction: {annonce.type}</p>
-                        <a href="#" className="mt-6 block w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition duration-150">
-                            Contacter l'Agent
-                        </a>
                     </div>
 
                 </div>

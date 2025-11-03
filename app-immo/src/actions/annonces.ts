@@ -76,7 +76,6 @@ export async function createAnnonce(formData: FormData) {
 
 /**
  * Met à jour une annonce existante et gère les nouvelles photos.
- * NOTE: La suppression des anciennes photos devrait être gérée ici aussi.
  */
 export async function updateAnnonce(formData: FormData) {
     try {

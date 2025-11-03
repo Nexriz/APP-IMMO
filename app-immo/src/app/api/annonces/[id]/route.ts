@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 interface EditAnnoncePageProps {
     params: { 
@@ -9,6 +10,10 @@ interface EditAnnoncePageProps {
 
 export async function GET(request : Request, { params } : EditAnnoncePageProps ){
     try {
+        const session = await auth();
+        if (!session || session.user.role === "USER") {
+            return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+        };
 
         //Récupération de l'annonce correspondante 
         const annonce = await prisma.annonce.findUnique({
@@ -16,6 +21,10 @@ export async function GET(request : Request, { params } : EditAnnoncePageProps )
                 id : parseInt(params.id)
             }
         });
+
+        if(session.user.id !== annonce?.userId){
+            return NextResponse.json({ error: "Non autorisé, vous n'êtes pas le propriétaire de l'annonce" }, { status: 403 });
+        };
 
         //Vérification si l'annonce a été trouvée dans la bdd
         if(!annonce){
@@ -31,7 +40,16 @@ export async function GET(request : Request, { params } : EditAnnoncePageProps )
 
 export async function PUT(request : Request, { params } : EditAnnoncePageProps ){
     try {
+        const session = await auth();
+        if (!session || session.user.role === "USER") {
+            return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+        };
+
         const annonceData = await request.json(); //Récupération de la requête contenant l'annonce
+
+        if(session.user.id !== annonceData?.userId){
+            return NextResponse.json({ error: "Non autorisé, vous n'êtes pas le propriétaire de l'annonce" }, { status: 403 });
+        };
 
         //Vérification si l'annonce a bien été récupérer
         if(!annonceData){
@@ -64,6 +82,11 @@ export async function PUT(request : Request, { params } : EditAnnoncePageProps )
 
 export async function DELETE(request : Request, { params }: EditAnnoncePageProps) {
   try {
+     const session = await auth();
+    if (!session || session.user.role === "USER") {
+        return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+    };
+    
     //Supression de l'annonce ayant l'id correspondant à la demande
     await prisma.annonce.delete({
         where: { 

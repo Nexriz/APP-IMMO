@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 interface UserAnnoncesProps {
   params: {
@@ -9,8 +10,11 @@ interface UserAnnoncesProps {
 
 export async function GET(request: Request, { params }: UserAnnoncesProps) {
   try {
-    const userId = parseInt(params.userId);
-
+    const session = await auth();
+    if (!session || session.user.role !== "USER") {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+    };
+    
     //Récupération de toutes les annonces appartenant à l'userId
     const annonces = await prisma.annonce.findMany({
       where: {

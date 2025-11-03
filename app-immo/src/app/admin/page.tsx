@@ -22,9 +22,9 @@ export default function AdminPage(){
     
                 if(!res.ok){
                     //Si l'api renvoie une erreur on la récupère et on l'affiche
-                    console.error("Problème nous n'avons pas trouvées les annonces !", d.error);
+                    console.error(d.error);
                 } else {
-                    console.log("Annonces trouvées : ", d);
+                    console.log("Liste d'utilisateurs : ", d);
                     setUsers(d); //Met a jour la liste des utilisateurs actuelles
                 }
             } catch (err) {

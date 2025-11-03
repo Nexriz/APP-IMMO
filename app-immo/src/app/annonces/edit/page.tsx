@@ -25,7 +25,7 @@ export default function EditAnnoncesPage() {
         const data = await res.json();
 
         if (!res.ok) {
-          console.error("Problème, annonces non trouvées !", data.error);
+          console.error(data.error);
         } else {
           setAnnonces(data);
         }

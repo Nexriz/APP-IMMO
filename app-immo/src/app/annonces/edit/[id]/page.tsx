@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import AnnonceForm from "@/components/AnnonceForm";
+import { useRouter } from "next/navigation";
 
 export default function EditPage(){
     const { data: session, status } = useSession();
@@ -11,6 +12,7 @@ export default function EditPage(){
     const [annonce, setAnnonce] = useState() ;
 
     const userId = session?.user.id;
+    const route = useRouter(); // Utilisé pour la redirection vers d'autres pages
 
     //Permet d'éviter les effets de bords sachant qu'on appelle fetch
     useEffect(() => {
@@ -21,7 +23,7 @@ export default function EditPage(){
 
                 if(!res.ok){
                 //Si l'api renvoie une erreur on la récupère et on l'affiche
-                console.error("Problème nous n'avons pas trouvée l'annonce !", d.error);
+                console.error(d.error);
                 } else {
                     console.log("Annonce trouvée : ", d);
                     setAnnonce(d); //Met a jour l'annonces actuelle

@@ -1,8 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 export async function GET(request: Request) {
   try {
+    const session = await auth();
+    if (!session || session.user.role !== "ADMIN") {
+        return NextResponse.json({ error: "Non autorisé, vous n'êtes pas l'administrateur" }, { status: 403 });
+    };
 
     //Récupération de tout les utilisateurs
     const users = await prisma.user.findMany({
@@ -28,6 +33,11 @@ export async function GET(request: Request) {
 
 export async function PUT(request : Request){
     try {
+        const session = await auth();
+        if (!session || session.user.role !== "ADMIN") {
+            return NextResponse.json({ error: "Non autorisé, vous n'êtes pas l'administrateur" }, { status: 403 });
+        };
+        
         const {id, role} = await request.json(); //récupération de l'id et du rôle de l'utilisateur
 
         const updateUser = await prisma.user.update({

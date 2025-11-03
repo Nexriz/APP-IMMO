@@ -42,15 +42,14 @@ export default function AnnonceCard({ annonce }: AnnonceCardProps) {
   };
 
   return (
-    // Utilisation de <a> pour remplacer Link (solution temporaire au problème de compilation)
     <a 
       href={`/annonces/${annonce.id}`} 
-      className="block bg-white shadow-xl rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] cursor-pointer"
+      className="block bg-white shadow-xl border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] cursor-pointer"
     >
       
-      <div className="relative w-full h-48 bg-gray-200">
+      <div className="relative w-full h-48 overflow-hidden rounded-t-xl">
         <div 
-          className="absolute inset-0 bg-cover bg-center"
+          className="h-48 bg-cover bg-center"
           style={{ backgroundImage: `url(${imageUrl})` }}
         >
         <span className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full ${
@@ -61,8 +60,8 @@ export default function AnnonceCard({ annonce }: AnnonceCardProps) {
       </div>
 
 
-      <div className="p-4">
-        <h2 className="text-xl font-bold text-gray-900 truncate mb-1">
+      <div className="p-8">
+        <h2 className="text-xl pt-4 font-bold text-gray-900 mb-1">
           {annonce.titre}
         </h2>
         <p className="text-3xl font-extrabold text-indigo-600 mb-3">

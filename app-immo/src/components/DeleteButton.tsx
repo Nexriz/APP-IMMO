@@ -39,7 +39,7 @@ export default function DeleteButton({ questionId, type, label }: DeleteButtonPr
       title={`Supprimer ${type}`}
       className={`text-red-500 hover:text-red-700 ${type === "question" ? "absolute top-2 right-2" : "ml-3"}`}
     >
-      {loading ? "..." : label || "🗑"}
+      {loading ? "..." : label || "supprimer 🗑️"}
     </button>
   );
 }

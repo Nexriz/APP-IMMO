@@ -12,7 +12,12 @@ export default function EditPage(){
     const [annonce, setAnnonce] = useState() ;
 
     const userId = session?.user.id;
-    const route = useRouter(); // Utilisé pour la redirection vers d'autres pages
+    const route = useRouter(); // Utilisation de route  pour la redirection vers d'autres pages
+    const userRole = session?.user.role;
+
+    if (userRole !== "ADMIN" && userRole !== "AGENT") {
+        throw new Error("Accès refusé : seuls les ADMIN et AGENT peuvent créer une annonce.");
+    }
 
     //Permet d'éviter les effets de bords sachant qu'on appelle fetch
     useEffect(() => {
@@ -49,6 +54,10 @@ export default function EditPage(){
     if (!annonce){
         return <p className="flex items-center justify-center h-screen text-3xl font-bold">Chargement de l’annonce...</p>;
     };
+
+    if (session.user.role !== "ADMIN" && session.user.role !== "AGENT") {
+        throw new Error("Accès refusé : seuls les ADMIN et AGENT peuvent créer une annonce.");
+    }
 
     //Vérification si l'utilisateur est un admin ou si l'annonce lui appartient alors il a accès sinon l'accès est refusé
     if (session.user.id !== annonce.userId && session.user.role !== "ADMIN") {

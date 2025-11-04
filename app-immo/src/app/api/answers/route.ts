@@ -10,6 +10,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
+    const userRole = session.user.role;
+    if (userRole !== "ADMIN" && userRole !== "AGENT") {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+    }
+
     const { questionId, answer } = await req.json();
     
 

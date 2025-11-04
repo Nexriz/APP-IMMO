@@ -11,9 +11,11 @@ interface UserAnnoncesProps {
 export async function GET(request: Request, { params }: UserAnnoncesProps) {
   try {
     const session = await auth();
-    if (!session || session.user.role !== "USER") {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
-    };
+    const user = session?.user;
+
+    if (!user || (user.role !== "ADMIN" && user.role !== "AGENT")) {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+    }
     
     //Récupération de toutes les annonces appartenant à l'userId
     const annonces = await prisma.annonce.findMany({

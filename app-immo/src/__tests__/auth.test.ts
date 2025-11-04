@@ -59,5 +59,5 @@ describe("Authentification NextAuth", () => {
     expect(user?.role).toBe("USER");
   });
 
-  test("Test Disconnection");
+  
 });

@@ -18,6 +18,7 @@
 /out/
 
 src/prisma/dev.db
+src/prisma/test.db
 
 # production
 /build

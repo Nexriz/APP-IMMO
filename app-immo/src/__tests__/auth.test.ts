@@ -1,7 +1,13 @@
+/**
+ * @jest-environment node
+ */
+import { jest, describe, test, expect, beforeAll, afterAll } from '@jest/globals';
+
 import * as bcrypt from "bcrypt";
-import { prisma } from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
 import { verify } from "@/lib/authCredentialsStyle";
 
+const prisma = new PrismaClient();
 
 describe("Authentification NextAuth", () => {
   const testPassword = "7894561230";
@@ -58,6 +64,4 @@ describe("Authentification NextAuth", () => {
     expect(user?.name).toBe("Test User");
     expect(user?.role).toBe("USER");
   });
-
-  test("Test Disconnection");
 });

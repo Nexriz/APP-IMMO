@@ -8,6 +8,13 @@ const secret = process.env.AUTH_SECRET;
 export async function middleware(request : NextRequest){
     const token = await getToken({req: request, secret : secret}); //Récupération du token
 
+    if (request.nextUrl.pathname.startsWith('/admin')) {
+        if (!token || token.role !== "ADMIN") {
+        return NextResponse.redirect(new URL('/', request.url));
+        };
+        return NextResponse.next();
+    };
+
     //URL possibles pour tout utilisateur (même non connecté)
     if(!request.nextUrl.pathname.startsWith('/annonces/new') && !request.nextUrl.pathname.startsWith('/annonces/edit')){
         return NextResponse.next();
@@ -26,10 +33,6 @@ export async function middleware(request : NextRequest){
     if(request.nextUrl.pathname.startsWith('/annonces/edit') && token.role !== "AGENT" && token.role !== "ADMIN"){
         return NextResponse.redirect(new URL('/', request.url));
     };
-
-    if(request.nextUrl.pathname.startsWith('/admin') && token.role !== "ADMIN"){
-        return NextResponse.redirect(new URL('/', request.url));
-    }
 
     return NextResponse.next();
 }

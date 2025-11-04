@@ -64,4 +64,6 @@ describe("Authentification NextAuth", () => {
     expect(user?.name).toBe("Test User");
     expect(user?.role).toBe("USER");
   });
+
+  
 });

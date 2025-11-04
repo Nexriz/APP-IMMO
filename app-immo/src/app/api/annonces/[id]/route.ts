@@ -11,9 +11,11 @@ interface EditAnnoncePageProps {
 export async function GET(request : Request, { params } : EditAnnoncePageProps ){
     try {
         const session = await auth();
-        if (!session || session.user.role === "USER") {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
-        };
+        const user = session?.user;
+
+        if (!user || (user.role !== "ADMIN" && user.role !== "AGENT")) {
+        return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+        }
 
         //Récupération de l'annonce correspondante 
         const annonce = await prisma.annonce.findUnique({
@@ -41,9 +43,11 @@ export async function GET(request : Request, { params } : EditAnnoncePageProps )
 export async function PUT(request : Request, { params } : EditAnnoncePageProps ){
     try {
         const session = await auth();
-        if (!session || session.user.role === "USER") {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
-        };
+        const user = session?.user;
+
+        if (!user || (user.role !== "ADMIN" && user.role !== "AGENT")) {
+            return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+        }
 
         const annonceData = await request.json(); //Récupération de la requête contenant l'annonce
 
@@ -83,9 +87,14 @@ export async function PUT(request : Request, { params } : EditAnnoncePageProps )
 export async function DELETE(request : Request, { params }: EditAnnoncePageProps) {
   try {
      const session = await auth();
-    if (!session || session.user.role === "USER") {
-        return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
-    };
+
+    const role = session?.user.role;
+    const userId = session?.user.id;
+
+    // Vérification de rôle côté serveur
+    if (role !== "ADMIN" && role !== "AGENT") {
+        return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+    }
     
     //Supression de l'annonce ayant l'id correspondant à la demande
     await prisma.annonce.delete({

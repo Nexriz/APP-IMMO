@@ -9,6 +9,10 @@ export default function NewAnnoncePage() {
     const userRole = session?.user.role;
     const userId = session?.user.id;
 
+    if (userRole !== "ADMIN" && userRole !== "AGENT") {
+        throw new Error("Accès refusé : seuls les ADMIN et AGENT peuvent créer une annonce.");
+    }
+
     if (status === "loading") {
         return <p className="flex items-center justify-center h-screen text-3xl font-bold">Chargement de la page...</p>;
     };

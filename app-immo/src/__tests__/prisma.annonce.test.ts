@@ -17,6 +17,13 @@ describe("Prisma - Vérification des opérations sur Annonce", () => {
     userId = user.id;
   });
 
+  afterAll(async () => {
+    // Nettoyage
+    await prisma.annonce.deleteMany({});
+    await prisma.user.deleteMany({});
+    await prisma.$disconnect();
+  });
+
   it("crée une annonce", async () => {
     const annonce = await prisma.annonce.create({
       data: {
@@ -79,6 +86,7 @@ describe("Prisma - Vérification des opérations sur Annonce", () => {
     const annonces = await prisma.annonce.findMany()
 
     expect(annonces.length).toBeGreaterThanOrEqual(2)
+
     expect(annonces.map(a => a.titre)).toEqual(expect.arrayContaining(["A1", "A2"]) );
   });
 });

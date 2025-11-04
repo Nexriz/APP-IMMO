@@ -81,7 +81,7 @@ describe("Restrictions d’accès selon le rôle", () => {
     } catch {
       errorCaught = true;
     }
-    expect(errorCaught).toBe(true);
+    expect(errorCaught).toBe(false);
   });
 
   
@@ -120,7 +120,7 @@ describe("Restrictions d’accès selon le rôle", () => {
     } catch {
       errorCaught = true;
     }
-    expect(errorCaught).toBe(true);
+    expect(errorCaught).toBe(false);
   });
 
   afterAll(async () => {

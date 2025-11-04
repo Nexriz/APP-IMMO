@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 
 describe("Prisma - Vérification des relations", () => {
-    
+
   let userId: string;
   let annonceId: number;
   let questionId: number;
@@ -43,6 +43,14 @@ describe("Prisma - Vérification des relations", () => {
       },
     });
     questionId = question.id
+  });
+
+  afterAll(async () => {
+    // Nettoyage
+    await prisma.question.deleteMany({});
+    await prisma.annonce.deleteMany({});
+    await prisma.user.deleteMany({});
+    await prisma.$disconnect();
   });
 
   it("vérifie que l'annonce est liée à l'agent", async () => {

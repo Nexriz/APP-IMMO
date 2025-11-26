@@ -32,7 +32,7 @@ Sur ce site, il sera possible de publier, consulter ou gérer des annonces selon
 - **Notification :** Système de notification lors d'une réponse d'un agent sur une annonce
 - **Road Protection :**  middleware (certaine pages ne sont pas accessible selon le rôle)
 
-  #Installation
+  # Installation
 
   Après avoir cloner le projet il va vous falloir installez les dépendances du projet pour cela taper la commande suivante dans le dossier à la racine du projet :
   

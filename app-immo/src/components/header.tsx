@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import LinkAuth from "./LinkAuth";
 import NotificationBell from "./Notification";  
 import { useSession } from "next-auth/react";
+
 
 export default function Header() {
     const { data: session } = useSession();
@@ -14,10 +16,9 @@ export default function Header() {
             <div className="container mx-auto px-6 py-4 flex justify-between items-center">
                 
                 {/* Logo */}
-                <div className="text-2xl font-bold text-white space-x-3 ">
-                    <Link href="/" >ImmobilleteToi</Link>
-
-                    <Link href="/annonces" className="font-bold underline border-l-4 border-white pl-4 hover:text-indigo-200 transition">Annonces</Link>
+                <div className="text-2xl font-bold text-white space-x-3 flex justify-start items-center">
+                    <Link href="/"><Image src="/icon.png" alt="Logo" width={40} height={40} className="rounded-xl" /></Link>
+                    <span>APP IMMO </span>
                 </div>
                 
                 <div className="flex items-center space-x-3">
@@ -45,10 +46,10 @@ export default function Header() {
                             Admin
                         </Link>
                     )}
-                    <nav className="flex justify-end p-4 bg-indigo-600 text-white">
-                        {role !== undefined && <NotificationBell />}
-                        </nav>
-                    
+                    {session !== null && (
+                        <nav className="flex justify-end p-4 bg-indigo-600 text-white">
+                            {role !== undefined && <NotificationBell />}
+                        </nav>)}
                     <LinkAuth />
                 </div>
             </div>

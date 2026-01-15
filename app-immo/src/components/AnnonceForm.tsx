@@ -7,12 +7,16 @@ import { useRouter } from 'next/navigation';
 
 // Définition des types pour le mode édition
 interface AnnonceWithPhotos extends Annonce {
-    photo: { id: number; url: string; photoName: string }[];
+    photo: { 
+        id: number; 
+        url: string; 
+        photoName: string 
+    }[];
 }
 
 interface AnnonceFormProps {
     mode: 'create' | 'edit';
-    agentId: string;
+    agentId: string | undefined;
     annonceData?: AnnonceWithPhotos; // Optionnel pour l'édition
 }
 
@@ -40,7 +44,9 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
         });
         
         // Ajouter l'ID de l'agent
-        formData.append('agentId', agentId);
+        if (agentId) {
+            formData.append('agentId', agentId);
+        }
         
         startTransition(async () => {
             const action = mode === 'create' ? createAnnonce : updateAnnonce;

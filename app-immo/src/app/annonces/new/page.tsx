@@ -9,17 +9,11 @@ export default function NewAnnoncePage() {
     const userRole = session?.user.role;
     const userId = session?.user.id;
 
-    if (userRole !== "ADMIN" && userRole !== "AGENT") {
-        throw new Error("Accès refusé : seuls les ADMIN et AGENT peuvent créer une annonce.");
-    }
-
     if (status === "loading") {
         return <p className="flex items-center justify-center h-screen text-3xl font-bold">Chargement de la page...</p>;
     };
 
-    
-
-    if (!session || userRole !== 'AGENT' && userRole !== 'ADMIN'||  !userId) {
+    if (!session || !userId) {
         return (
             <div className="container mx-auto py-20 text-center">
                 <h1 className="text-3xl font-bol text-red-600 mb-4">Accès Refusé</h1>
@@ -27,6 +21,10 @@ export default function NewAnnoncePage() {
                 <a href="/login" className="mt-4 inline-block text-indigo-600 hover:underline">Se connecter</a>
             </div>
         );
+    }
+
+    if (userRole !== "ADMIN" && userRole !== "AGENT") {
+        throw new Error("Accès refusé : seuls les ADMIN et AGENT peuvent créer une annonce.");
     }
 
     // Le contrôle d'accès est réussi, afficher le formulaire

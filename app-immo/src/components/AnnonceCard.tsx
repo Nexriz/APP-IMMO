@@ -1,4 +1,6 @@
 "use client";
+import { Calendar, Tag, Home } from "lucide-react";
+
 
 enum TypeBien {
   VENDU = 'VENDU',
@@ -20,7 +22,6 @@ interface Annonce {
   dateDispo: Date;
 }
 
-// On étend le type Annonce pour inclure les photos
 interface AnnonceWithPhoto extends Annonce {
   photo: Photo[];
 }
@@ -32,7 +33,6 @@ interface AnnonceCardProps {
 export default function AnnonceCard({ annonce }: AnnonceCardProps) {
   const imageUrl = annonce.photo[0]?.url || '/no-image.jpg';
   
-  // Fonction pour formater le prix en Euros
   const formatPrice = (price: number) => {
     return price.toLocaleString('fr-FR', {
       style: 'currency',
@@ -44,33 +44,61 @@ export default function AnnonceCard({ annonce }: AnnonceCardProps) {
   return (
     <a 
       href={`/annonces/${annonce.id}`} 
-      className="block bg-white shadow-xl border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] cursor-pointer"
+      className="group block bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
     >
-      
-      <div className="relative w-full h-48 overflow-hidden rounded-t-xl">
+      {/* Container Image */}
+      <div className="relative h-64 w-full overflow-hidden">
         <div 
-          className="h-48 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
           style={{ backgroundImage: `url(${imageUrl})` }}
-        >
-        <span className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full ${
-          annonce.type === TypeBien.LOCATION ? 'bg-orange-500 text-white' : 'bg-green-500 text-white'}`}>
-          {annonce.type === TypeBien.LOCATION ? 'À Louer' : 'À Vendre'}
-        </span>
+        />
+        
+        {/* Overlay dégradé pour lisibilité */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Badge Type de Bien */}
+        <div className="absolute top-4 left-4">
+          <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg ${
+            annonce.type === TypeBien.LOCATION 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-emerald-500 text-white'
+          }`}>
+            <Tag size={12} />
+            {annonce.type === TypeBien.LOCATION ? 'Location' : 'Vente'}
+          </span>
         </div>
       </div>
 
+      {/* Contenu */}
+      <div className="p-6">
+        <div className="flex justify-between items-start mb-2">
+          <h2 className="text-xl font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
+            {annonce.titre}
+          </h2>
+        </div>
 
-      <div className="p-8">
-        <h2 className="text-xl pt-4 font-bold text-gray-900 mb-1">
-          {annonce.titre}
-        </h2>
-        <p className="text-3xl font-extrabold text-indigo-600 mb-3">
-          {formatPrice(annonce.prix)}
-        </p>
-   
-        <p className="text-xs text-gray-400 mt-3 text-right">
-            Publié le {new Date(annonce.dateDispo).toLocaleDateString()}
-        </p>
+        <div className="flex items-baseline gap-1 mb-4">
+          <span className="text-2xl font-black text-gray-900">
+            {formatPrice(annonce.prix)}
+          </span>
+          {annonce.type === TypeBien.LOCATION && (
+            <span className="text-sm text-gray-500 font-medium">/ mois</span>
+          )}
+        </div>
+
+        {/* Séparateur */}
+        <div className="h-px w-full bg-gray-100 my-4" />
+
+        <div className="flex items-center justify-between text-gray-500 text-sm">
+          <div className="flex items-center gap-2">
+            <Calendar size={16} className="text-gray-400" />
+            <span>Dispo : {new Date(annonce.dateDispo).toLocaleDateString()}</span>
+          </div>
+          
+          <div className="flex items-center gap-1 font-semibold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0">
+            Voir plus →
+          </div>
+        </div>
       </div>
     </a>
   );

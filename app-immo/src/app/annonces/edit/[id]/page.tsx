@@ -4,15 +4,14 @@ import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import AnnonceForm from "@/components/AnnonceForm";
-import { useRouter } from "next/navigation";
 
 export default function EditPage(){
     const { data: session, status } = useSession();
     const { id } = useParams();
-    const [annonce, setAnnonce] = useState() ;
+    const [annonce, setAnnonce] = useState<any>(null);
+    const [error, setError] = useState("");
 
     const userId = session?.user.id;
-    const route = useRouter(); // Utilisation de route  pour la redirection vers d'autres pages
     const userRole = session?.user.role;
 
     if (userRole !== "ADMIN" && userRole !== "AGENT") {
@@ -23,6 +22,7 @@ export default function EditPage(){
     useEffect(() => {
         async function getAnnonce() {
             try {
+                setError("");
                 const res = await fetch(`/api/annonces/${id}`); //appel api récupérant l'annonce
                 const d = await res.json(); //Récupération de l'annonce
 
@@ -31,10 +31,12 @@ export default function EditPage(){
                 console.error(d.error);
                 } else {
                     console.log("Annonce trouvée : ", d);
+                    setError(d.error);
                     setAnnonce(d); //Met a jour l'annonces actuelle
                 }
             } catch (err) {
                 console.error("Erreur réseau ", err);
+                setError("Erreur réseau lors de la récupération de l'annonce.");
             }
         }
         getAnnonce(); //appel de la fonction
@@ -60,7 +62,7 @@ export default function EditPage(){
     }
 
     //Vérification si l'utilisateur est un admin ou si l'annonce lui appartient alors il a accès sinon l'accès est refusé
-    if (session.user.id !== annonce.userId && session.user.role !== "ADMIN") {
+    if (error === "Non autorisé, vous n'êtes pas le propriétaire de l'annonce") {
         return <p className="flex items-center justify-center h-screen text-3xl font-bold">Accès refusé</p>;
     };
 

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-
 import { SessionProvider } from "next-auth/react";
+
 import Header from "@/components/header";
 
 const inter = Inter({
@@ -11,8 +11,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "immobillete toi",
-  description: "Site d'agence immobilière",
+  title: "APP IMMO",
+  description: "Site d'annonces immobilières",
+  icons : {
+    icon: "/icon.png"
+  }
 };
 
 export default function RootLayout({
@@ -21,12 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
-
-      <head>
-        <title>Immobillette toi</title>
-      </head>
-      
+    <html lang="fr">    
       <body
         className={`${inter.variable} antialiased`}
       >

@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 
 interface Photo {
   id: number;
-  photoName: string;
+  photoName: string | null;
   url: string;
 }
 
 interface ImageGalleryProps {
-  photos: Photo[];
+  photos: Photo[] | null;
   titreAnnonce: string;
 }
 

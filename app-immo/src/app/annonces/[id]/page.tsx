@@ -5,27 +5,18 @@ import AnswerForm from "@/components/AnswerForm"; // Chemin relatif vers src/com
 import DeleteButton from "@/components/DeleteButton"; // Chemin relatif vers src/components/DeleteButton
 import { TypeBien } from '@prisma/client'; // Import des enums
 import { auth } from "@/auth"; // vient de ton fichier src/auth.ts
-import { redirect } from "next/navigation";
-
 
 interface AnnonceDetailPageProps {
     params: { id: string };
 }
 
 export default async function AnnonceDetailPage({ params }: AnnonceDetailPageProps) {
-
     const session = await auth();
-
-    
-    if (!session) {
-        redirect("/annonces/loginRequired"); 
-    }
-
     const annonceId = parseInt(params.id);
 
     if (isNaN(annonceId)) {
         return <div className="text-center py-20 text-red-500">ID d'annonce invalide.</div>;
-    }
+    };
 
     try {
         const annonce = await prisma.annonce.findUnique({
@@ -33,150 +24,175 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
             include: { 
                 photo: true, // Photos
                 question: {
-                    include: { user: { select: { name: true } } }
+                    include: { 
+                        user: { 
+                            select: { 
+                                name: true 
+                        } 
+                    } 
+                }
                 }, // Questions avec nom utilisateur
-                user: { select: { name: true } } // Agent
+                user: { 
+                    select: { 
+                        name: true 
+                    } 
+                } // Agent
             },
         });
 
         if (!annonce) {
-            return <div className="text-center py-20 text-gray-600">Désolé, cette annonce n'existe plus.</div>;
-        }
+            return <div className="text-center py-20 text-gray-600">Cette annonce n'existe pas.</div>;
+        };
 
         const isLocation = annonce.type === TypeBien.LOCATION;
 
         {/*//Filtrage des questions selon le rôle du user*/}
-        let questionsFiltrees = annonce.question
+        let questionsFiltrees = annonce.question;
 
-        if (session.user.role === "USER") {
+        if (session?.user.role === "USER") {
         // L'utilisateur normal ne voit que ses propres questions
         questionsFiltrees = annonce.question.filter(
-            (q) => q.userId === session.user.id
+            (q) => q.userId === session?.user.id
         );
-        } else if (session.user.role === "AGENT") {
-        // L’agent ne voit que les questions des annonces qu’il gère
-        if (annonce.userId !== session.user.id) {
-            questionsFiltrees = []; // pas son annonce → aucune question affichée
-        }
-        }
-        // oui et l'ADMIN voit tout
+        } else if (session?.user.role === "AGENT") {
+            // L’agent ne voit que les questions des annonces qu’il gère
+            if (annonce.userId !== session?.user.id) {
+                questionsFiltrees = []; // pas son annonce → aucune question affichée
+            };
+        };
 
         return (
             <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
                 
                 {/* 1. Titre et Statut */}
-                <div className="flex flex-col sm:flex-row justify-between items-start mb-8 border-b pb-4">
-                    <h1 className="text-4xl font-extrabold text-white mb-3 sm:mb-0">{annonce.titre}</h1>
-
-                    <span className={`px-4 py-2 rounded-full text-sm font-semibold text-white ${isLocation ? 'bg-green-500' : 'bg-indigo-500'}`}>
-                        {isLocation ? 'À Louer' : 'À Vendre'}
-                    </span>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                    <div>
+                        <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+                            {annonce.titre}
+                        </h1>
+                        <div className="flex items-center gap-3 mt-3">
+                            <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-white shadow-sm ${isLocation ? 'bg-blue-600' : 'bg-emerald-500'}`}>
+                                {isLocation ? 'À Louer' : 'À Vendre'}
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* 2. Galerie d'images */}
-                <ImageGallery 
-                    photos={annonce.photo} 
-                    titreAnnonce={annonce.titre} 
-                />
+                <div className="rounded-3xl overflow-hidden shadow-2xl mb-12 border-4 border-white">
+                    <ImageGallery 
+                        photos={annonce.photo}
+                        titreAnnonce={annonce.titre} 
+                    />
+                </div>
 
-                <div className="flex flex-col lg:flex-row gap-8 mt-10">
+               <div className="flex flex-col lg:flex-row gap-12 mt-10">
                     
-                    {/* 3. Détails de l'Annonce */}
-                    <div className="lg:w-2/3 space-y-6">
-                        <div className="p-6 bg-white rounded-xl shadow-md">
-                            <h2 className="text-3xl font-bold text-indigo-600 mb-4">
-                                {annonce.prix.toLocaleString('fr-FR')} €
-                            </h2>
-                            <h3 className="text-xl font-semibold mb-3 border-b pb-2 text-gray-800">Description</h3>
-                            <p className="text-gray-700 leading-relaxed whitespace-pre-line">{annonce.description}</p>
-                            
-                            <div className="mt-6 pt-4 border-t text-gray-600 space-y-1">
-                                <p>Agent responsable : <span className="font-medium text-gray-800">{annonce.user.name || 'Agent Inconnu'}</span></p>
-                                <p className="text-sm text-gray-500">
-                                    Date de disponibilité : {annonce.dateDispo.toLocaleDateString('fr-FR')}
-                                </p>
+                    {/* 3. Colonne Gauche : Détails & Questions */}
+                    <div className="lg:w-2/3 space-y-12">
+                        <section className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-4xl font-black text-blue-600">
+                                    {annonce.prix.toLocaleString('fr-FR')} €
+                                    {isLocation && <span className="text-lg text-slate-400 font-normal"> /mois</span>}
+                                </h2>
                             </div>
-                        </div>
-
-                        
-                        {/* 4. Section Questions/Réponses */}
-                        <div className="mt-8">
-                            <h3 className="text-2xl font-semibold mb-4 text-white">
-                                Questions ({questionsFiltrees.length})
-                            </h3>
 
                             <div className="space-y-4">
+                                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                    <span className="w-8 h-1 bg-blue-600 rounded-full"></span>
+                                    Description
+                                </h3>
+                                <p className="text-slate-600 leading-relaxed text-lg whitespace-pre-line">
+                                    {annonce.description}
+                                </p>
+                            </div>
+                        </section>
+
+                        {/* 4. Section Questions/Réponses Style "Messages" */}
+                        <section className="space-y-6">
+                            <h3 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                                Questions & Réponses
+                                <span className="bg-slate-200 text-slate-700 text-sm px-3 py-1 rounded-full">{questionsFiltrees.length}</span>
+                            </h3>
+
+                            <div className="space-y-6">
                                 {questionsFiltrees.map((q) => (
-                                <div
-                                    key={q.id}
-                                    className="p-4 bg-gray-100 rounded-lg shadow-sm border border-gray-200 relative"
-                                >
-                                    
-                                    {(session?.user?.role === "ADMIN" || session?.user?.id === annonce.userId) && (
-                                        <DeleteButton questionId={q.id} type="question" />
-                                    )}
-
-                                    <p className="font-medium text-gray-700">
-                                        Q: {q.content}{" "}
-                                    <span className="text-sm text-gray-500 italic">
-                                        — posée par {q.user?.name || "Utilisateur inconnu"}
-                                    </span>
-                                    </p>
-
-                                    <div className="mt-2 pl-4 border-l-2 border-indigo-500">
-                                    {q.answer ? (
-                                        <div className="flex justify-between items-start">
-                                        <p className="text-sm text-gray-800">
-                                            R: {q.answer}{" "}
-                                            <span className="text-gray-500 italic">— agent</span>
-                                        </p>
-
-                                        {(session?.user?.role === "ADMIN" ||
-                                            session?.user?.id === annonce.userId) && (
-                                            <DeleteButton questionId={q.id} type="answer" />
-                                        )}
+                                    <div key={q.id} className="group relative">
+                                        {/* Bulle Question */}
+                                        <div className="bg-white p-6 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 mb-2">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-xs font-bold text-blue-600 uppercase tracking-tighter">Question de {q.user?.name}</span>
+                                                {(session?.user?.role === "ADMIN" || session?.user?.id === annonce.userId) && (
+                                                    <DeleteButton questionId={q.id} type="question" />
+                                                )}
+                                            </div>
+                                            <p className="text-slate-800 font-medium text-lg">{q.content}</p>
                                         </div>
-                                    ) : (
-                                        <p className="text-sm text-gray-500 italic">
-                                        En attente de réponse de l'agent...
-                                        </p>
-                                    )}
+
+                                        {/* Bulle Réponse */}
+                                        <div className="ml-8">
+                                            {q.answer ? (
+                                                <div className="bg-blue-50 p-5 rounded-2xl rounded-tl-none border border-blue-100 relative">
+                                                    <div className="flex justify-between items-start">
+                                                        <p className="text-slate-700 leading-relaxed">
+                                                            <span className="font-bold text-blue-800">Réponse de l'agent :</span> {q.answer}
+                                                        </p>
+                                                        {(session?.user?.role === "ADMIN" || session?.user?.id === annonce.userId) && (
+                                                            <DeleteButton questionId={q.id} type="answer" />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 text-sm italic">
+                                                    En attente d'une réponse...
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
                                 ))}
                             </div>
 
-                            {/* Formulaire de question visible uniquement pour les utilisateurs */}
                             {session?.user?.role === "USER" && (
-                                <QuestionForm annonceId={annonce.id} />
-                            )}
-
-                            {/* Formulaire de réponse visible pour agent/admin et seulement sur les questions filtrées */}
-                            {session?.user?.role !== "USER" &&
-                                questionsFiltrees.map((q) => (
-                                <div key={q.id} className="mt-4">
-                                    {!q.answer &&
-                                    (session.user.role === "ADMIN" ||
-                                        annonce.userId === session.user.id) && (
-                                        <AnswerForm questionId={q.id} />
-                                    )}
+                                <div className="bg-blue-600 p-8 rounded-3xl text-white shadow-lg">
+                                    <h4 className="text-xl font-bold mb-4">Une question sur ce bien ?</h4>
+                                    <QuestionForm annonceId={annonce.id} />
                                 </div>
-                                ))}
-                            </div>
-
-
-
+                            )}
+                        </section>
                     </div>
                     
-                    <div className="lg:w-1/3 p-6 bg-white rounded-xl shadow-lg h-fit">
-                        <h3 className="text-xl font-bold mb-4 underline text-gray-800">Informations Complémentaires</h3>
-                        <p className="text-black font-bold">Statut du Bien: {annonce.statutBien}</p>
-                        <p className="text-black font-bold">Type de Transaction: {annonce.type}</p>
-                    </div>
+                    {/* 5. Sidebar Droite : Infos & Contact */}
+                    <aside className="lg:w-1/3 space-y-6">
+                        <div className="sticky top-8 space-y-6">
+                            <div className="p-8 bg-slate-900 rounded-3xl shadow-xl text-white">
+                                <h3 className="text-xl font-bold mb-6 border-b border-slate-700 pb-4">Informations clés</h3>
+                                <div className="space-y-6">
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-400">Statut</span>
+                                        <span className="font-bold text-emerald-400">{annonce.statutBien}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-400">Type</span>
+                                        <span className="font-bold">{annonce.type}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-400">Disponible le</span>
+                                        <span className="font-bold">{annonce.dateDispo.toLocaleDateString('fr-FR')}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-8 bg-white rounded-3xl shadow-sm border border-slate-100">
+                                <h4 className="text-slate-400 text-xs font-bold uppercase mb-2">Agent responsable</h4>
+                                <p className="text-xl font-black text-slate-900">{annonce.user.name || 'Agent Pro'}</p>
+                            </div>
+                        </div>
+                    </aside>
 
                 </div>
             </div>
-        )
+    )
     } catch (error) {
         console.error("Erreur lors du chargement du détail de l'annonce:", error);
         return (

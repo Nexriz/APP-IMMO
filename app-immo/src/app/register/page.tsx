@@ -56,7 +56,7 @@ export default function SignUpPage() {
 
             <input
               type="text"
-              placeholder="Prénom nom (pas obligatoire)"
+              placeholder="Prénom (pas obligatoire)"
               className="border p-2 rounded-xl"
               value={name}
               onChange={(e) => setName(e.target.value)}

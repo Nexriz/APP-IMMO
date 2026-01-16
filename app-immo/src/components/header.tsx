@@ -6,51 +6,65 @@ import LinkAuth from "./LinkAuth";
 import NotificationBell from "./Notification";  
 import { useSession } from "next-auth/react";
 
-
 export default function Header() {
     const { data: session } = useSession();
     const role = session?.user?.role;
 
     return (
-        <header className="bg-blue-500 shadow-md sticky top-0 z-50">
-            <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+        <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+            <div className="container mx-auto px-6 py-3 flex justify-between items-center">
                 
-                {/* Logo */}
-                <div className="text-2xl font-bold text-white space-x-3 flex justify-start items-center">
-                    <Link href="/"><Image src="/icon.png" alt="Logo" width={40} height={40} className="rounded-xl" /></Link>
-                    <span>APP IMMO </span>
-                </div>
+                {/* Logo Section */}
+                <Link href="/" className="flex items-center gap-3 group transition-transform hover:scale-[1.02]">
+                    <div className="relative w-10 h-10 shadow-lg rounded-xl overflow-hidden border border-slate-100">
+                        <Image 
+                            src="/icon.png" 
+                            alt="Logo" 
+                            fill 
+                            className="object-cover"
+                        />
+                    </div>
+                    <span className="text-xl font-black text-slate-900 tracking-tighter uppercase">
+                        App <span className="text-blue-600">Immo</span>
+                    </span>
+                </Link>
                 
-                <div className="flex items-center space-x-3">
+                {/* Navigation Section */}
+                <div className="flex items-center gap-4">
+                    
+                    {/* Admin/Agent Actions */}
                     {(role === "AGENT" || role === "ADMIN") && (
-                        <>
-                            <Link
-                                href="/annonces/new"
-                                className="bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition"
-                            >
-                                Ajouter
-                            </Link>
+                        <div className="hidden md:flex items-center bg-slate-100 p-1 rounded-xl gap-1">
                             <Link
                                 href="/annonces/edit"
-                                className="bg-black text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition"
+                                className="text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-white hover:shadow-sm transition-all text-sm"
                             >
                                 Mes annonces
                             </Link>
-                        </>
+                        </div>
                     )}
+
+                    {/* Admin Badge */}
                     {role === "ADMIN" && (
                         <Link
                             href="/admin"
-                            className="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 transition"
+                            className="bg-red-50 text-red-600 border border-red-100 font-bold py-2 px-4 rounded-xl hover:bg-red-600 hover:text-white transition-all text-sm"
                         >
-                            Admin
+                            Panel Admin
                         </Link>
                     )}
-                    {session !== null && (
-                        <nav className="flex justify-end p-4 bg-indigo-600 text-white">
-                            {role !== undefined && <NotificationBell />}
-                        </nav>)}
-                    <LinkAuth />
+
+                    {/* Notification & Auth */}
+                    <div className="flex items-center gap-2 pl-4 border-l border-slate-200">
+                        {session && role && (
+                            <div className="p-2 hover:bg-slate-100 rounded-full transition-colors relative">
+                                <NotificationBell />
+                            </div>
+                        )}
+                        <div className="ml-2">
+                            <LinkAuth />
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>

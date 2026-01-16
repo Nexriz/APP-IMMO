@@ -12,6 +12,7 @@ export default function EditPage(){
     const router = useRouter();
     const [annonce, setAnnonce] = useState<any>(null);
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(true);
 
     const userId = session?.user.id;
     const userRole = session?.user.role;
@@ -21,6 +22,7 @@ export default function EditPage(){
         
         async function getAnnonce() {
             try {
+                setLoading(true);
                 const res = await fetch(`/api/annonces/${id}`);
                 const d = await res.json();
 
@@ -31,13 +33,15 @@ export default function EditPage(){
                 }
             } catch (err) {
                 setError("Erreur réseau lors de la récupération.");
+            } finally {
+                setLoading(false);
             }
         }
         getAnnonce();
     }, [id, status]);
 
     // 1. État de chargement élégant
-    if (status === "loading" || (!annonce && !error)) {
+    if (status === "loading" || loading) {
         return (
             <div className="flex flex-col items-center justify-center h-[80vh] gap-4">
                 <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
@@ -45,6 +49,15 @@ export default function EditPage(){
             </div>
         );
     }
+
+    if (error) {
+    return (
+        <div className="container mx-auto py-10 text-center">
+            <p className="text-red-500 font-bold">{error}</p>
+            <button onClick={() => router.back()} className="mt-4 text-blue-500 underline">Retour</button>
+        </div>
+    );
+}
 
     // 2. Gestion des accès non autorisés (sans crasher l'app)
     if (!session || (userRole !== "ADMIN" && userRole !== "AGENT")) {

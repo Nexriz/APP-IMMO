@@ -24,7 +24,7 @@ export async function GET(request : Request, { params } : EditAnnoncePageProps )
             }
         });
 
-        if(session.user.id !== annonce?.userId){
+        if(session.user.id !== annonce?.userId && user.role !== "ADMIN"){
             return NextResponse.json({ error: "Non autorisé, vous n'êtes pas le propriétaire de l'annonce" }, { status: 403 });
         };
 

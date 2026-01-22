@@ -47,17 +47,21 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
         const isLocation = annonce.type === TypeBien.LOCATION;
 
         {/*//Filtrage des questions selon le rôle du user*/}
-        let questionsFiltrees = annonce.question;
-
-        if (session?.user.role === "USER") {
-        // L'utilisateur normal ne voit que ses propres questions
-        questionsFiltrees = annonce.question.filter(
-            (q) => q.userId === session?.user.id
-        );
-        } else if (session?.user.role === "AGENT") {
-            // L’agent ne voit que les questions des annonces qu’il gère
-            if (annonce.userId !== session?.user.id) {
-                questionsFiltrees = []; // pas son annonce → aucune question affichée
+        let questionsFiltrees = [...annonce.question];
+        if(session?.user){
+            if(session?.user.role === "ADMIN"){
+                questionsFiltrees = annonce.question;
+                
+            } else if (session?.user.role === "USER") {
+                // L'utilisateur normal ne voit que ses propres questions
+                questionsFiltrees = annonce.question.filter(
+                    (q) => q.userId === session?.user.id
+                );
+            } else if (session?.user.role === "AGENT") {
+                // L’agent ne voit que les questions des annonces qu’il gère
+                if (annonce.userId !== session?.user.id) {
+                    questionsFiltrees = []; // pas son annonce → aucune question affichée
+                };
             };
         };
 
@@ -123,7 +127,7 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
                                         <div className="bg-white p-6 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 mb-2">
                                             <div className="flex justify-between items-start mb-2">
                                                 <span className="text-xs font-bold text-blue-600 uppercase tracking-tighter">Question de {q.user?.name}</span>
-                                                {(session?.user?.role === "ADMIN" || session?.user?.id === annonce.userId) && (
+                                                {(session?.user?.role === "ADMIN") && (
                                                     <DeleteButton questionId={q.id} type="question" />
                                                 )}
                                             </div>
@@ -136,17 +140,23 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
                                                 <div className="bg-blue-50 p-5 rounded-2xl rounded-tl-none border border-blue-100 relative">
                                                     <div className="flex justify-between items-start">
                                                         <p className="text-slate-700 leading-relaxed">
-                                                            <span className="font-bold text-blue-800">Réponse de l'agent :</span> {q.answer}
+                                                            <span className="font-bold text-blue-800">Réponse de {annonce.user.name} : </span> {q.answer}
                                                         </p>
-                                                        {(session?.user?.role === "ADMIN" || session?.user?.id === annonce.userId) && (
+                                                        {(session?.user?.role === "ADMIN") && (
                                                             <DeleteButton questionId={q.id} type="answer" />
                                                         )}
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 text-sm italic">
-                                                    En attente d'une réponse...
-                                                </div>
+                                                session?.user?.id === annonce.userId ? (
+                                                    <div className="mt-2">
+                                                        <AnswerForm questionId={q.id} />
+                                                    </div>
+                                                ) : (
+                                                    <div className="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 text-sm italic">
+                                                        En attente d'une réponse de l'agent...
+                                                    </div>          
+                                                )
                                             )}
                                         </div>
                                     </div>
@@ -159,6 +169,8 @@ export default async function AnnonceDetailPage({ params }: AnnonceDetailPagePro
                                     <QuestionForm annonceId={annonce.id} />
                                 </div>
                             )}
+
+                            
                         </section>
                     </div>
                     

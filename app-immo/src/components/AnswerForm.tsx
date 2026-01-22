@@ -36,7 +36,7 @@ export default function AnswerForm({ questionId }: { questionId: number }) {
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
         placeholder="Votre réponse..."
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded text-black"
         disabled={loading}
       />
       <button

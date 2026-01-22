@@ -89,6 +89,9 @@ export async function updateAnnonce(formData: FormData) {
         const agentId = formData.get('agentId') as string;
         const files = formData.getAll('images') as File[];
 
+        if (!annonceId || isNaN(annonceId)) {
+            return { error: "ID de l'annonce manquant ou invalide." };
+        }
 
         const annonceMiseAJour = await prisma.annonce.update({
             where: { id: annonceId, userId: agentId },

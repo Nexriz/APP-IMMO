@@ -26,12 +26,19 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
     const [error, setError] = useState<string | null>(null);
     const [files, setFiles] = useState<File[]>([]);
 
+
+    const formatDateForInput = (date: Date | undefined) => {
+        if (!date) return '';
+        return new Date(date).toISOString().split('T')[0];
+    };
     // Initialisation des valeurs pour l'édition ou la création
     const initialData = {
         titre: annonceData?.titre || '',
         description: annonceData?.description || '',
         price: annonceData?.prix || 0,
         statut: annonceData?.statutBien || StatutBien.DISPONIBLE,
+        type : annonceData?.type || 'LOCATION',
+        date : formatDateForInput(annonceData?.dateDispo) || formatDateForInput(new Date())
     };
 
     // Gère la soumission du formulaire
@@ -78,6 +85,10 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
     return (
         <form action={handleSubmit} className="space-y-6 bg-white p-8 rounded-xl shadow-lg">
             
+            {mode === 'edit' && annonceData?.id && (
+                <input type="hidden" name="annonceId" value={annonceData.id} />
+            )}
+
             {/* -------------------- Message d'erreur -------------------- */}
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
@@ -108,6 +119,7 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                         type="number"
                         name="price"
                         id="price"
+                        defaultValue={initialData.price}
                         required
                         min="0"
                         className="mt-1 block w-full border border-gray-300 text-black rounded-md shadow-sm p-3"
@@ -121,6 +133,7 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                 <textarea
                     name="description"
                     id="description"
+                    defaultValue={initialData.description}
                     rows={4}
                     className="mt-1 block w-full border border-gray-300 text-black rounded-md shadow-sm p-3"
                 />
@@ -134,7 +147,7 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                     <select
                         name="type"
                         id="type"
-                        defaultValue={"LOCATION"}
+                        defaultValue={initialData.type}
                         className="mt-1 block w-full border border-gray-300 text-black rounded-md shadow-sm p-3"
                     >
                         <option value={"VENTE"}>VENTE</option>
@@ -162,6 +175,7 @@ export default function AnnonceForm({ mode, agentId, annonceData }: AnnonceFormP
                         type="date"
                         name="dateDispo"
                         id="dateDispo"
+                        defaultValue={initialData.date}
                         required
                         className="mt-1 block w-full border border-gray-300 text-black rounded-md shadow-sm p-3"
                     />
